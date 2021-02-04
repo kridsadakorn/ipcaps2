@@ -1,4 +1,4 @@
-#' (Internal object) The HTML output template for IPCAPS
+#' (Internal object) The HTML output template for IPCAPS2
 #'
 #' \code{output.template} contains \code{$lno_title}, \code{$lno_data},
 #' \code{$lno_leafnode}, \code{$lno_body}, and \code{$template} as explained

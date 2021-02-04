@@ -7,7 +7,7 @@
 get.node.info(cluster.obj, node)
 }
 \arguments{
-\item{cluster.obj}{A list returned from the \code{\link{ipcaps}} function.}
+\item{cluster.obj}{A list returned from the \code{\link{ipcaps2}} function.}
 
 \item{node}{An integer representing a node number to enquire information as
 shown in the HTML output files.}
@@ -27,17 +27,17 @@ to this node.
 }
 \description{
 Obtain the information for specified
-node from the output list of \code{\link{ipcaps}}.
+node from the output list of \code{\link{ipcaps2}}.
 }
 \examples{
 
 # Importantly, bed file, bim file, and fam file are required
 # Use the example files embedded in the package
 
-BED.file <- system.file("extdata","ipcaps_example.bed",package="IPCAPS")
-LABEL.file <- system.file("extdata","ipcaps_example_individuals.txt.gz",package="IPCAPS")
+BED.file <- system.file("extdata","ipcaps_example.bed",package="IPCAPS2")
+LABEL.file <- system.file("extdata","ipcaps_example_individuals.txt.gz",package="IPCAPS2")
 
-my.cluster <- ipcaps(bed=BED.file,label.file=LABEL.file,lab.col=2,out=tempdir())
+my.cluster <- ipcaps2(bed=BED.file,label.file=LABEL.file,lab.col=2,out=tempdir())
 
 #Here, to obtain the information of specified node, for example, node 3
 node.info <- get.node.info(my.cluster,3)

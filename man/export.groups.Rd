@@ -2,28 +2,28 @@
 % Please edit documentation in R/export.groups.R
 \name{export.groups}
 \alias{export.groups}
-\title{Export the IPCAPS result to a text file}
+\title{Export the IPCAPS2 result to a text file}
 \usage{
 export.groups(result.dir)
 }
 \arguments{
 \item{result.dir}{A result directory as the \code{$output} object returned
-from the \code{\link{ipcaps}} function.}
+from the \code{\link{ipcaps2}} function.}
 }
 \value{
 A data frame of exported data containing 4 columns; \code{group},
 \code{node}, \code{label}, \code{row.number}, as described below for more
 details:
 \itemize{
-\item \code{group} represents group membership of IPCAPS result.
-\item \code{node} represents node numbers of IPCAPS result.
+\item \code{group} represents group membership of IPCAPS2 result.
+\item \code{node} represents node numbers of IPCAPS2 result.
 \item \code{label} represents labels of rows in orginal input data.
 \item \code{row.number} represents row numbers of orginal input data.
 }
 }
 \description{
 Export clustering result of
-\code{\link{ipcaps}} to text file called 'groups.txt'.
+\code{\link{ipcaps2}} to text file called 'groups.txt'.
 }
 \details{
 After running, this function exports the file called 'groups.txt' to the same result
@@ -36,12 +36,12 @@ accordingly.
 # Importantly, bed file, bim file, and fam file are required
 # Use the example files embedded in the package
 
-BED.file <- system.file("extdata","ipcaps_example.bed",package="IPCAPS")
-LABEL.file <- system.file("extdata","ipcaps_example_individuals.txt.gz",package="IPCAPS")
+BED.file <- system.file("extdata","ipcaps_example.bed",package="IPCAPS2")
+LABEL.file <- system.file("extdata","ipcaps_example_individuals.txt.gz",package="IPCAPS2")
 
-my.cluster <- ipcaps(bed=BED.file,label.file=LABEL.file,lab.col=2,out=tempdir())
+my.cluster <- ipcaps2(bed=BED.file,label.file=LABEL.file,lab.col=2,out=tempdir())
 
-#Here, to export the IPCAPS result to a text file
+#Here, to export the IPCAPS2 result to a text file
 exported.data <- export.groups(my.cluster$output.dir)
 print(dim(exported.data))
 head(exported.data)

@@ -4,14 +4,14 @@
 #' @description Detects top discriminators that contribute to
 #' group separation based on the fixation index (Fst).
 #'
-#' @param cluster.obj The object which is returned from \code{\link{ipcaps}}.
+#' @param cluster.obj The object which is returned from \code{\link{ipcaps2}}.
 #' This parameter is used when \code{use.path} is FALSE.
 #' @param group1 To specify the first group number to be compared. (also see
 #' \code{use.node.number})
 #' @param group2 To specify the second group number to be compared. (also see
 #' \code{use.node.number})
 #' @param bim.file Option: In case that SNP information is not provided to
-#' \code{\link{ipcaps}}, an absolute path of SNP information file is required.
+#' \code{\link{ipcaps2}}, an absolute path of SNP information file is required.
 #' It needs to be in PLINK format (bim). See more details at:
 #' \url{http://zzz.bwh.harvard.edu/plink/data.shtml}.
 #' @param use.node.number To specify whether a group number or a node number
@@ -25,10 +25,10 @@
 #' is TRUE. Default = FALSE.
 #' @param use.path A logical value to indicate whether \code{result.path} is
 #' used instead of \code{cluster.obj}. Importantly, \code{result.path} needs to
-#' be set. This parameter only work with the IPCAPS's result from version 1.1.7
+#' be set. This parameter only work with the IPCAPS2 result from version 1.1.7
 #' onward. Default = FALSE.
-#' @param result.path A path to an result directory of IPCAPS. This parameter is
-#' used when \code{use.path} is TRUE. This parameter only work with the IPCAPS's
+#' @param result.path A path to an result directory of IPCAPS2. This parameter is
+#' used when \code{use.path} is TRUE. This parameter only work with the IPCAPS2
 #' result from version 1.1.7 onward.
 #'
 #' @return The returned value is a data.frame of SNP information sorting by Fst
@@ -42,9 +42,9 @@
 #'
 #' # Importantly, bed file, bim file, and fam file are required
 #' # Use the example files embedded in the package
-#' BED.file <- system.file("extdata","ipcaps_example.bed",package="IPCAPS")
-#' LABEL.file <- system.file("extdata","ipcaps_example_individuals.txt.gz",package="IPCAPS")
-#' my.cluster <- ipcaps(bed=BED.file,label.file=LABEL.file,lab.col=2,out=tempdir())
+#' BED.file <- system.file("extdata","ipcaps_example.bed",package="IPCAPS2")
+#' LABEL.file <- system.file("extdata","ipcaps_example_individuals.txt.gz",package="IPCAPS2")
+#' my.cluster <- ipcaps2(bed=BED.file,label.file=LABEL.file,lab.col=2,out=tempdir())
 #' table(my.cluster$cluster$label,my.cluster$cluster$group)
 #' # 1 2 3 4 5 6
 #' # outlier4 5 4 1 0 0 0

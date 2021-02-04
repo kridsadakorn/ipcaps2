@@ -1,11 +1,11 @@
 
-#' (Internal function) Check whether the IPCAPS process meets the stopping
+#' (Internal function) Check whether the IPCAPS2 process meets the stopping
 #' criterion.
 #'
 #' @param eigen.value A vector of Eigenvalues return from \code{svd} ($d),
 #' \code{rARPACK::svds} ($d),  \code{eigen} ($values) or \code{rARPACK::eigs} ($values).
-#' @param threshold A threshold or a cutoff to stop the IPCAPS process. Also see
-#' \code{\link{ipcaps}} (the parameter \code{threshold}).
+#' @param threshold A threshold or a cutoff to stop the IPCAPS2 process. Also see
+#' \code{\link{ipcaps2}} (the parameter \code{threshold}).
 #'
 #' @return A list containing \code{status}, \code{eigen.value}, \code{eigen.fit},
 #' \code{threshold}, and \code{no.significant.PC} as explained below:

@@ -2,7 +2,7 @@
 
 export(export.groups)
 export(get.node.info)
-export(ipcaps)
+export(ipcaps2)
 export(save.eigenplots.html)
 export(save.html)
 export(save.plots)

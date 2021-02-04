@@ -3,7 +3,7 @@
 \docType{data}
 \name{output.template}
 \alias{output.template}
-\title{(Internal object) The HTML output template for IPCAPS}
+\title{(Internal object) The HTML output template for IPCAPS2}
 \format{
 A list with with 5 objects
 }

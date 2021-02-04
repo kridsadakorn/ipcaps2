@@ -2,7 +2,7 @@
 % Please edit documentation in R/clustering.mode.R
 \name{clustering.mode}
 \alias{clustering.mode}
-\title{(Internal function) Select a clustering method to be used for the IPCAPS
+\title{(Internal function) Select a clustering method to be used for the IPCAPS2
 process.}
 \usage{
 clustering.mode(node, work.dir, method)
@@ -13,17 +13,17 @@ analyzed.}
 
 \item{work.dir}{A working directory.}
 
-\item{method}{A clustering method selected from the \code{\link{ipcaps}}
-function. See \code{\link{ipcaps}} for available methods.}
+\item{method}{A clustering method selected from the \code{\link{ipcaps2}}
+function. See \code{\link{ipcaps2}} for available methods.}
 }
 \value{
 A vector of cluster assignment, for which cluster each individual
 belongs.
 }
 \description{
-(Internal function) Select a clustering method to be used for the IPCAPS
+(Internal function) Select a clustering method to be used for the IPCAPS2
 process.
 }
 \seealso{
-\code{\link{ipcaps}}
+\code{\link{ipcaps2}}
 }

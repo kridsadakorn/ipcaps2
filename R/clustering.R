@@ -1,5 +1,5 @@
 
-#' (Internal function) Perform the clustering process of IPCAPS
+#' (Internal function) Perform the clustering process of IPCAPS2
 #'
 #' @param dataframe A data frame containing \code{raw.data} (matrix or data
 #' frame), \code{label} (vector), and \code{index} (vector). \code{raw.data}
@@ -9,16 +9,16 @@
 #' @param node An integer representing the current node number which is being
 #' analyzed.
 #' @param result.dir An output directory
-#' @param threshold A threshold or a cutoff to stop the IPCAPS process. Also see
-#' \code{\link{ipcaps}} (the parameter \code{threshold}).
+#' @param threshold A threshold or a cutoff to stop the IPCAPS2 process. Also see
+#' \code{\link{ipcaps2}} (the parameter \code{threshold}).
 #' @param min.fst A number represents a cutoff for mininum Fst value.
-#' @param method A clustering method selected from the \code{\link{ipcaps}}
-#' function. See \code{\link{ipcaps}} for available methods.
+#' @param method A clustering method selected from the \code{\link{ipcaps2}}
+#' function. See \code{\link{ipcaps2}} for available methods.
 #' @param min.in.group A integer represents a minimum number of group members.
 #' @param datatype To specify whether the input data are 'snp' or other type.
 #' Defalut = 'snp'.
 #' @param nonlinear (Unimplemented) To specify whether linear or non-linear
-#' method is used for IPCAPS analysis. If TRUE, non-linear method is used,
+#' method is used for IPCAPS2 analysis. If TRUE, non-linear method is used,
 #' otherwise linear method is used. Default = FALSE.
 #'
 #' @return A list containing \code{status}, \code{node}, and \code{new.index}

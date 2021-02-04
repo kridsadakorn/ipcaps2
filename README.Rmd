@@ -29,7 +29,7 @@ iterative pruning to capture population structure. This version supports ordinal
 data which can be applied directly to SNP data to identify fine-level population 
 structure and it is built on the iterative pruning Principal Component Analysis 
 (ipPCA) algorithm by Intarapanich et al. (2009) <doi: 10.1186/1471-2105-10-382> 
-and Limpiti et al. (2011)<doi: 10.1186/1471-2105-12-255>. The IPCAPS 
+and Limpiti et al. (2011)<doi: 10.1186/1471-2105-12-255>. The IPCAPS2 
 involves an iterative process using multiple splits based on multivariate 
 Gaussian mixture modeling of principal components and Clustering EM estimation 
 as in Lebret et al. (2015) <doi: 10.18637/jss.v067.i06>. In each iteration, rough clusters and outliers are 
@@ -62,7 +62,7 @@ library(IPCAPS2)
 BED.file <- system.file("extdata", "ipcaps_example.bed", package = "IPCAPS2")
 LABEL.file <- system.file("extdata", "ipcaps_example_individuals.txt.gz",
                           package = "IPCAPS2")
-my.cluster1 <- ipcaps(bed = BED.file, label.file = LABEL.file, lab.col = 2,
+my.cluster1 <- ipcaps2(bed = BED.file, label.file = LABEL.file, lab.col = 2,
 out = tempdir())
 
 ```

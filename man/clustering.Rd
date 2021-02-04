@@ -2,7 +2,7 @@
 % Please edit documentation in R/clustering.R
 \name{clustering}
 \alias{clustering}
-\title{(Internal function) Perform the clustering process of IPCAPS}
+\title{(Internal function) Perform the clustering process of IPCAPS2}
 \usage{
 clustering(
   dataframe,
@@ -28,13 +28,13 @@ analyzed.}
 
 \item{result.dir}{An output directory}
 
-\item{threshold}{A threshold or a cutoff to stop the IPCAPS process. Also see
-\code{\link{ipcaps}} (the parameter \code{threshold}).}
+\item{threshold}{A threshold or a cutoff to stop the IPCAPS2 process. Also see
+\code{\link{ipcaps2}} (the parameter \code{threshold}).}
 
 \item{min.fst}{A number represents a cutoff for mininum Fst value.}
 
-\item{method}{A clustering method selected from the \code{\link{ipcaps}}
-function. See \code{\link{ipcaps}} for available methods.}
+\item{method}{A clustering method selected from the \code{\link{ipcaps2}}
+function. See \code{\link{ipcaps2}} for available methods.}
 
 \item{min.in.group}{A integer represents a minimum number of group members.}
 
@@ -42,7 +42,7 @@ function. See \code{\link{ipcaps}} for available methods.}
 Defalut = 'snp'.}
 
 \item{nonlinear}{(Unimplemented) To specify whether linear or non-linear
-method is used for IPCAPS analysis. If TRUE, non-linear method is used,
+method is used for IPCAPS2 analysis. If TRUE, non-linear method is used,
 otherwise linear method is used. Default = FALSE.}
 }
 \value{
@@ -58,5 +58,5 @@ split from \code{dataframe$index} according to a clustering result.
 }
 }
 \description{
-(Internal function) Perform the clustering process of IPCAPS
+(Internal function) Perform the clustering process of IPCAPS2
 }

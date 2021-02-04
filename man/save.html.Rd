@@ -8,14 +8,14 @@ save.html(output.dir)
 }
 \arguments{
 \item{output.dir}{A result directory as the \code{$output} object returned
-from the \code{\link{ipcaps}} function.}
+from the \code{\link{ipcaps2}} function.}
 }
 \value{
 \code{NULL}
 }
 \description{
 Generate HTML file called 'tree_text.html' from the result of
-\code{\link{ipcaps}}. The clustering result is shown as a tree rendering by
+\code{\link{ipcaps2}}. The clustering result is shown as a tree rendering by
 the online Google Organizational Chart library. Note that the Internet is
 required to view the HTML file.
 }
@@ -28,10 +28,10 @@ same result directory.
 # Importantly, bed file, bim file, and fam file are required
 # Use the example files embedded in the package
 
-BED.file <- system.file("extdata","ipcaps_example.bed",package="IPCAPS")
-LABEL.file <- system.file("extdata","ipcaps_example_individuals.txt.gz",package="IPCAPS")
+BED.file <- system.file("extdata","ipcaps_example.bed",package="IPCAPS2")
+LABEL.file <- system.file("extdata","ipcaps_example_individuals.txt.gz",package="IPCAPS2")
 
-my.cluster <- ipcaps(bed=BED.file,label.file=LABEL.file,lab.col=2,out=tempdir())
+my.cluster <- ipcaps2(bed=BED.file,label.file=LABEL.file,lab.col=2,out=tempdir())
 
 #Here, to generate HTML file
 save.html(my.cluster$output.dir)

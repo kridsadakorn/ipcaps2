@@ -2,20 +2,20 @@
 % Please edit documentation in R/save.plots.cluster.html.R
 \name{save.plots.cluster.html}
 \alias{save.plots.cluster.html}
-\title{Generate HTML file for scatter plots which all data points are highlighted by IPCAPS clusters}
+\title{Generate HTML file for scatter plots which all data points are highlighted by IPCAPS2 clusters}
 \usage{
 save.plots.cluster.html(output.dir)
 }
 \arguments{
 \item{output.dir}{A result directory as the \code{$output} object returned
-from the \code{\link{ipcaps}} function.}
+from the \code{\link{ipcaps2}} function.}
 }
 \value{
 \code{NULL}
 }
 \description{
 Generate HTML file called 'tree_scatter_cluster.html' from the
-result of \code{\link{ipcaps}}. This function is a part of workflow in
+result of \code{\link{ipcaps2}}. This function is a part of workflow in
 \code{\link{save.plots}}. The clustering result is shown as a tree rendering
 by the online Google Organizational Chart library. Note that the Internet is
 required to view the HTML file.
@@ -30,10 +30,10 @@ in the sub-directory 'images'.
 # Importantly, bed file, bim file, and fam file are required
 # Use the example files embedded in the package
 
-BED.file <- system.file("extdata","ipcaps_example.bed",package="IPCAPS")
-LABEL.file <- system.file("extdata","ipcaps_example_individuals.txt.gz",package="IPCAPS")
+BED.file <- system.file("extdata","ipcaps_example.bed",package="IPCAPS2")
+LABEL.file <- system.file("extdata","ipcaps_example_individuals.txt.gz",package="IPCAPS2")
 
-my.cluster <- ipcaps(bed=BED.file,label.file=LABEL.file,lab.col=2,out=tempdir())
+my.cluster <- ipcaps2(bed=BED.file,label.file=LABEL.file,lab.col=2,out=tempdir())
 
 #Here, to generate HTML file
 save.plots.cluster.html(my.cluster$output.dir)

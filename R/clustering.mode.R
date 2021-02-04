@@ -1,13 +1,13 @@
 
 
-#' (Internal function) Select a clustering method to be used for the IPCAPS
+#' (Internal function) Select a clustering method to be used for the IPCAPS2
 #' process.
 #'
 #' @param node An integer representing the current node number which is being
 #' analyzed.
 #' @param work.dir A working directory.
-#' @param method A clustering method selected from the \code{\link{ipcaps}}
-#' function. See \code{\link{ipcaps}} for available methods.
+#' @param method A clustering method selected from the \code{\link{ipcaps2}}
+#' function. See \code{\link{ipcaps2}} for available methods.
 #'
 #' @return A vector of cluster assignment, for which cluster each individual
 #' belongs.
@@ -19,7 +19,7 @@
 #' @importFrom Rmixmod mixmodCluster mixmodPredict
 #' @import KRIS
 #'
-#' @seealso \code{\link{ipcaps}}
+#' @seealso \code{\link{ipcaps2}}
 
 clustering.mode <- function(node,work.dir,method){
   start.time = Sys.time()
