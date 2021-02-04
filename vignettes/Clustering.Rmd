@@ -1,0 +1,19 @@
+---
+title: "Population clusting with IPCAPS2"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Clustering}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(IPCAPS)
+```
