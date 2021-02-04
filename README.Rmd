@@ -13,18 +13,18 @@ knitr::opts_chunk$set(
 )
 ```
 
-# IPCAPS <img src="man/figures/ipcaps2_logo.png" align="right" />
+# IPCAPS2 <img src="man/figures/ipcaps2_logo.png" align="right" />
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/kridsadakorn/ipcaps/workflows/R-CMD-check/badge.svg)](https://github.com/kridsadakorn/ipcaps/actions)
-[![CRAN status](https://www.r-pkg.org/badges/version/IPCAPS)](https://CRAN.R-project.org/package=IPCAPS)
+[![CRAN status](https://www.r-pkg.org/badges/version/IPCAPS2)](https://CRAN.R-project.org/package=IPCAPS2)
 [![codecov](https://codecov.io/gh/kridsadakorn/ipcaps/branch/master/graph/badge.svg?token=GGF640V5QY)](https://codecov.io/gh/kridsadakorn/ipcaps)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Lifecycle: maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
 [![DOI](https://zenodo.org/badge/333291312.svg)](https://zenodo.org/badge/latestdoi/333291312)
 <!-- badges: end -->
 
-```IPCAPS``` is an unsupervised clustering algorithm based on 
+```IPCAPS2``` is an unsupervised clustering algorithm based on 
 iterative pruning to capture population structure. This version supports ordinal 
 data which can be applied directly to SNP data to identify fine-level population 
 structure and it is built on the iterative pruning Principal Component Analysis 
@@ -37,15 +37,15 @@ also identified using the function ```rubikclust()``` from the R package ```KRIS
 
 ## Installation
 
-You can install the released version of IPCAPS from [CRAN](https://CRAN.R-project.org) with:
+You can install the released version of IPCAPS2 from [CRAN](https://CRAN.R-project.org) with:
 
 ``` r
-install.packages("IPCAPS")
+install.packages("IPCAPS2")
 ```
-Alternatively, you can install the dev version of IPCAPS from [Gitlab](https://github.com/kridsadakorn/ipcaps) with
+Alternatively, you can install the dev version of IPCAPS2 from [Github](https://github.com/kridsadakorn/ipcaps2) with
 ``` r
 install.packages("remotes")
-remotes::install_github("kridsadakorn/ipcaps", dependencies = TRUE)
+remotes::install_github("kridsadakorn/ipcaps2", dependencies = TRUE)
 ```
 
 ## Document
@@ -57,11 +57,11 @@ You can see the reference manual from: [https://www.biostatgen.org/ipcaps/](http
 This is a basic example which shows you how to use the packages:
 
 ```{r example}
-library(IPCAPS)
+library(IPCAPS2)
 
-BED.file <- system.file("extdata", "ipcaps_example.bed", package = "IPCAPS")
+BED.file <- system.file("extdata", "ipcaps_example.bed", package = "IPCAPS2")
 LABEL.file <- system.file("extdata", "ipcaps_example_individuals.txt.gz",
-                          package = "IPCAPS")
+                          package = "IPCAPS2")
 my.cluster1 <- ipcaps(bed = BED.file, label.file = LABEL.file, lab.col = 2,
 out = tempdir())
 

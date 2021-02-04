@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Synthetic dataset containing population labels for the dataset raw.data — label • IPCAPS2</title>
+<title>IPCAPS : Iterative Pruning to CApture Population Structure — IPCAPS2-package • IPCAPS2</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,10 +46,16 @@
 
 
 
-<meta property="og:title" content="Synthetic dataset containing population labels for the dataset raw.data — label" />
-<meta property="og:description" content="A dataset contains a character vector of 1,004 elements containing labels or
-populations of 1,004 individuals which they belong. Five populations and
-outliers were labeled as &quot;pop1&quot;, &quot;pop2&quot;, &quot;pop3&quot;, &quot;pop4&quot;, &quot;pop5&quot;, and &quot;outlier&quot;." />
+<meta property="og:title" content="IPCAPS : Iterative Pruning to CApture Population Structure — IPCAPS2-package" />
+<meta property="og:description" content="An unsupervised clustering algorithm based on iterative pruning is for capturing
+population structure. This version supports ordinal data which can be applied
+directly to SNP data to identify fine-level population structure and it is
+built on the iterative pruning Principal Component Analysis (ipPCA) algorithm
+(Intarapanich et al., 2009; Limpiti et al., 2011). The IPCAPS involves an
+iterative process using multiple splits based on multivariate Gaussian
+mixture modeling of principal components and Clustering EM estimation as explained in
+Lebret et al. (2015). In each iteration, rough clusters and outliers are also
+identified using the function rubikclust() from the R package KRIS." />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -133,26 +139,81 @@ outliers were labeled as &quot;pop1&quot;, &quot;pop2&quot;, &quot;pop3&quot;, &
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Synthetic dataset containing population labels for the dataset <code>raw.data</code></h1>
-    <small class="dont-index">Source: <a href='https://github.com/kridsadakorn/ipcaps/blob/master/R/data.R'><code>R/data.R</code></a></small>
-    <div class="hidden name"><code>label.Rd</code></div>
+    <h1>IPCAPS : Iterative Pruning to CApture Population Structure</h1>
+    <small class="dont-index">Source: <a href='https://github.com/kridsadakorn/ipcaps/blob/master/R/ipcaps-package.R'><code>R/ipcaps-package.R</code></a></small>
+    <div class="hidden name"><code>IPCAPS2-package.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>A dataset contains a character vector of 1,004 elements containing labels or
-populations of 1,004 individuals which they belong. Five populations and
-outliers were labeled as "pop1", "pop2", "pop3", "pop4", "pop5", and "outlier".</p>
+    <p>An unsupervised clustering algorithm based on iterative pruning is for capturing
+population structure. This version supports ordinal data which can be applied
+directly to SNP data to identify fine-level population structure and it is
+built on the iterative pruning Principal Component Analysis (ipPCA) algorithm
+(Intarapanich et al., 2009; Limpiti et al., 2011). The IPCAPS involves an
+iterative process using multiple splits based on multivariate Gaussian
+mixture modeling of principal components and Clustering EM estimation as explained in
+Lebret et al. (2015). In each iteration, rough clusters and outliers are also
+identified using the function rubikclust() from the R package <span class="pkg">KRIS</span>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>ipcaps_example</span><span class='op'>)</span></pre>
 
 
-    <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>A vector with 1,004 elements.</p>
+    <p>The R package <span class="pkg">IPCAPS</span> requires the package <span class="pkg">KRIS</span>.</p>
+<p>Here is the list of functions in the R package <span class="pkg">IPCAPS</span>:</p><ul>
+<li><p><code><a href='export.groups.html'>export.groups</a></code></p></li>
+<li><p><code><a href='get.node.info.html'>get.node.info</a></code></p></li>
+<li><p><code><a href='ipcaps.html'>ipcaps</a></code></p></li>
+<li><p><code><a href='save.eigenplots.html.html'>save.eigenplots.html</a></code></p></li>
+<li><p><code><a href='save.html.html'>save.html</a></code></p></li>
+<li><p><code><a href='save.plots.cluster.html.html'>save.plots.cluster.html</a></code></p></li>
+<li><p><code><a href='save.plots.label.html.html'>save.plots.label.html</a></code></p></li>
+<li><p><code><a href='save.plots.html'>save.plots</a></code></p></li>
+<li><p><code><a href='top.discriminator.html'>top.discriminator</a></code></p></li>
+</ul>
+
+<p>Moreover, here is the list of example datasets in the R package <span class="pkg">IPCAPS</span>:</p><ul>
+<li><p><code><a href='raw.data.html'>raw.data</a></code></p></li>
+<li><p><code><a href='label.html'>label</a></code></p></li>
+<li><p><code><a href='PC.html'>PC</a></code></p></li>
+</ul>
+
+    <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
+
+    <p>Intarapanich, A., Shaw, P.J., Assawamakin, A., Wangkumhang, P., Ngamphiw, C.,
+Chaichoompu, K., Piriyapongsa, J., and Tongsima, S. (2009). Iterative pruning
+PCA improves resolution of highly structured populations. BMC Bioinformatics
+10, 382.</p>
+<p>Lebret, R., Iovleff, S., Langrognet, F., Biernacki, C., Celeux, G., and
+Govaert, G. (2015). Rmixmod: TheRPackage of the Model-Based Unsupervised,
+Supervised, and Semi-Supervised ClassificationMixmodLibrary. J. Stat. Softw.
+67.</p>
+<p>Limpiti, T., Intarapanich, A., Assawamakin, A., Shaw, P.J., Wangkumhang, P.,
+Piriyapongsa, J., Ngamphiw, C., and Tongsima, S. (2011). Study of large and
+highly stratified population datasets by combining iterative pruning
+principal component analysis and structure. BMC Bioinformatics 12, 255.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='raw.data.html'>raw.data</a></code> and <code><a href='PC.html'>PC</a></code></p></div>
+    <div class='dont-index'><p>Useful links:</p><ul>
+<li><p><a href='https://github.com/kridsadakorn/ipcaps'>https://github.com/kridsadakorn/ipcaps</a></p></li>
+<li><p>Report bugs at <a href='https://github.com/kridsadakorn/ipcaps/issues'>https://github.com/kridsadakorn/ipcaps/issues</a></p></li>
+</ul>
+
+</div>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p><strong>Maintainer</strong>: Kridsadakorn Chaichoompu <a href='mailto:kridsadakorn@biostatgen.org'>kridsadakorn@biostatgen.org</a> (<a href='https://orcid.org/0000-0002-8123-3409'>ORCID</a>)</p>
+<p>Authors:</p><ul>
+<li><p>Kristel Van Steen (<a href='https://orcid.org/0000-0001-9868-5033'>ORCID</a>)</p></li>
+<li><p>Fentaw Abegaz (<a href='https://orcid.org/0000-0002-6294-4360'>ORCID</a>)</p></li>
+<li><p>Sissades Tongsima (<a href='https://orcid.org/0000-0002-1491-1839'>ORCID</a>)</p></li>
+<li><p>Philip James Shaw</p></li>
+<li><p>Anavaj Sakuntabhai (<a href='https://orcid.org/0000-0001-9099-6937'>ORCID</a>)</p></li>
+<li><p>Luisa Pereira (<a href='https://orcid.org/0000-0002-4271-1527'>ORCID</a>)</p></li>
+</ul>
+
+
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

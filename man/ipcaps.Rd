@@ -129,9 +129,9 @@ a com-prehensive matrix.
 #Importantly, bed file, bim file, and fam file are required
 #Use the example files embedded in the package
 
-BED.file <- system.file("extdata", "ipcaps_example.bed", package = "IPCAPS")
+BED.file <- system.file("extdata", "ipcaps_example.bed", package = "IPCAPS2")
 LABEL.file <- system.file("extdata", "ipcaps_example_individuals.txt.gz",
-                          package = "IPCAPS")
+                          package = "IPCAPS2")
 my.cluster1 <- ipcaps(bed = BED.file, label.file = LABEL.file, lab.col = 2,
 out = tempdir())
 
@@ -152,7 +152,7 @@ table(my.cluster1$cluster$label, my.cluster1$cluster$group)
 # The other alternative way, use an R Data file as input
 # Use the example file embedded in the package
 
-#rdata.file <- system.file("extdata", "ipcaps_example.rda", package = "IPCAPS")
+#rdata.file <- system.file("extdata", "ipcaps_example.rda", package = "IPCAPS2")
 
 #my.cluster3 <- ipcaps(rdata = rdata.file, out = tempdir())
 #table(my.cluster3$cluster$label, my.cluster3$cluster$group)
