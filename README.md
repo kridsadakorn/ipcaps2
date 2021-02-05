@@ -1,4 +1,3 @@
-
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 # IPCAPS2 <img src="man/figures/ipcaps2_logo.png" align="right" />
@@ -14,6 +13,7 @@ v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/li
 [![Lifecycle:
 maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
 [![DOI](https://zenodo.org/badge/333291312.svg)](https://zenodo.org/badge/latestdoi/333291312)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fkridsadakorn%2Fipcaps2.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fkridsadakorn%2Fipcaps2?ref=badge_shield)
 <!-- badges: end -->
 
 `IPCAPS2` is an unsupervised clustering algorithm based on iterative
@@ -251,3 +251,7 @@ list.files(my.cluster1$output.dir)
     <a href="http://bio3.giga.ulg.ac.be/" border=0 style="border:0; text-decoration:none; outline:none"><img width="40px" src="man/figures/bio3_logo.png" align="center" /></a><br />
   - Kridsadakorn Chaichoompu, visit
     <a href="https://www.biostatgen.org/" border=0 style="border:0; text-decoration:none; outline:none"><img width="110px" src="man/figures/biostatgen_logo.png" align="center" /></a><br />
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fkridsadakorn%2Fipcaps2.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fkridsadakorn%2Fipcaps2?ref=badge_large)
