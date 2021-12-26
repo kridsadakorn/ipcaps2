@@ -4,11 +4,15 @@
 \alias{export.groups}
 \title{Export the IPCAPS2 result to a text file}
 \usage{
-export.groups(result.dir)
+export.groups(result.dir, silence.mode = FALSE)
 }
 \arguments{
 \item{result.dir}{A result directory as the \code{$output} object returned
 from the \code{\link{ipcaps2}} function.}
+
+\item{silence.mode}{To enable or disable silence mode. If silence mode is
+enabled, the fuction is processed without printing any message on the
+screen, and it is slightly faster. Default = TRUE.}
 }
 \value{
 A data frame of exported data containing 4 columns; \code{group},
@@ -39,7 +43,7 @@ accordingly.
 BED.file <- system.file("extdata","ipcaps_example.bed",package="IPCAPS2")
 LABEL.file <- system.file("extdata","ipcaps_example_individuals.txt.gz",package="IPCAPS2")
 
-my.cluster <- ipcaps2(bed=BED.file,label.file=LABEL.file,lab.col=2,out=tempdir())
+my.cluster <- ipcaps2(bed=BED.file,label.file=LABEL.file,lab.col=2,out=tempdir(),silence=TRUE,no.rep=1)
 
 #Here, to export the IPCAPS2 result to a text file
 exported.data <- export.groups(my.cluster$output.dir)

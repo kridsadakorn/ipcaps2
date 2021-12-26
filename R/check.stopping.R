@@ -1,4 +1,6 @@
 
+
+
 #' (Internal function) Check whether the IPCAPS2 process meets the stopping
 #' criterion.
 #'
@@ -21,20 +23,37 @@
 #'
 #' @include parallelization.R
 
-check.stopping <- function(eigen.value, threshold){
-
-  eigen.fit.vec = cal.eigen.fit(eigen.value)
-  eigen.fit = max(eigen.fit.vec)
-  no.significant.PC = length(eigen.fit.vec[1:which(eigen.fit.vec == eigen.fit)[1]])
-  if (no.significant.PC<3){
-    no.significant.PC = 3
+check.stopping <- function(eigen.value, threshold)
+{
+  eigen.fit.vec <- cal.eigen.fit(eigen.value)
+  eigen.fit <- max(eigen.fit.vec)
+  no.significant.PC <-
+    length(eigen.fit.vec[seq(1, which(eigen.fit.vec ==
+                                        eigen.fit)[1])])
+  if (no.significant.PC < 3)
+  {
+    no.significant.PC <- 3
   }
 
-  ret = list("status"=0,"eigen.value"=eigen.value,"eigen.fit"=eigen.fit, "threshold"=threshold, "no.significant.PC" = no.significant.PC)
-  if (eigen.fit < threshold){  #case of status = 1, no more spliting, stopping criteria are met
-    ret = list("status"=1,"eigen.value"=eigen.value,"eigen.fit"=eigen.fit, "threshold"=threshold)
+  ret <-
+    list(
+      status = 0,
+      eigen.value = eigen.value,
+      eigen.fit = eigen.fit,
+      threshold = threshold,
+      no.significant.PC = no.significant.PC
+    )
+
+  if (eigen.fit < threshold)
+  {
+    # case of status = 1, no more spliting, stopping criteria are met
+    ret <-
+      list(
+        status = 1,
+        eigen.value = eigen.value,
+        eigen.fit = eigen.fit,
+        threshold = threshold
+      )
   }
   return(ret)
 }
-
-

@@ -140,7 +140,7 @@
     <p>(Internal function) Perform the iterative process for each node</p>
     </div>
 
-    <pre class="usage"><span class='fu'>process.each.node</span><span class='op'>(</span><span class='va'>node</span>, <span class='va'>work.dir</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>process.each.node</span><span class='op'>(</span><span class='va'>node</span>, <span class='va'>work.dir</span>, no.rep <span class='op'>=</span> <span class='fl'>5</span>, cutoff.confident <span class='op'>=</span> <span class='fl'>0.5</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -153,6 +153,14 @@ analyzed.</p></td>
     <tr>
       <th>work.dir</th>
       <td><p>A working directory.</p></td>
+    </tr>
+    <tr>
+      <th>no.rep</th>
+      <td><p>To specify a  number of time to replicate the internal clustering. Default = 5,</p></td>
+    </tr>
+    <tr>
+      <th>cutoff.confident</th>
+      <td><p>To specify a cutoff for confident values. Default = 0.5.</p></td>
     </tr>
     </table>
 
@@ -171,7 +179,7 @@ analyzed.</p></td>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Kridsadakorn Chaichoompu, Kristel Van Steen, Fentaw Abegaz, Sissades Tongsima, Philip James Shaw, Anavaj Sakuntabhai, Luisa Pereira.</p>
+  <p>Developed by Kridsadakorn Chaichoompu, Kristel Van Steen.</p>
 </div>
 
 <div class="pkgdown">

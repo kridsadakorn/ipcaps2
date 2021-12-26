@@ -13,7 +13,9 @@ clustering(
   method = "mix",
   min.in.group = 20,
   datatype = "snp",
-  nonlinear = FALSE
+  nonlinear = FALSE,
+  no.rep = 5,
+  cutoff.confident = 0.5
 )
 }
 \arguments{
@@ -44,6 +46,10 @@ Defalut = 'snp'.}
 \item{nonlinear}{(Unimplemented) To specify whether linear or non-linear
 method is used for IPCAPS2 analysis. If TRUE, non-linear method is used,
 otherwise linear method is used. Default = FALSE.}
+
+\item{no.rep}{To specify a  number of time to replicate the internal clustering. Default = 5,}
+
+\item{cutoff.confident}{To specify a cutoff for confident values. Default = 0.5.}
 }
 \value{
 A list containing \code{status}, \code{node}, and \code{new.index}

@@ -7,7 +7,7 @@
 pasre.categorical.data(files)
 }
 \arguments{
-\item{files}{IPCAPS2 supports categorical data, which rows represent features
+\item{files}{ipcaps supports categorical data, which rows represent features
 and columns represent subjects or individuals. Each column needs to be
 separated by a space or a tab. A big text file should be divided into smaller
 files to load faster. For instance, to input 3 files, use as: files=c(

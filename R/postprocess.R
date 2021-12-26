@@ -1,4 +1,5 @@
 
+
 #' (Internal function) Perform the post-processing step of IPCAPS2
 #'
 #' @param result.dir A result directory as the \code{$output} object returned
@@ -20,29 +21,32 @@
 #' @include save.plots.R
 #' @include save.html.R
 #'
-postprocess <- function( result.dir, reanalysis=FALSE){
-
+postprocess <- function(result.dir, reanalysis = FALSE)
+{
   no.plot <- NULL
+  silence.mode <- NULL
 
-  file.name = file.path(result.dir,"RData","leafnode.RData")
-  load(file=file.name)
-  file.name = file.path(result.dir,"RData","condition.RData")
-  load(file=file.name)
+  file.name <- file.path(result.dir, "RData", "leafnode.RData")
+  load(file = file.name)
+  file.name <- file.path(result.dir, "RData", "condition.RData")
+  load(file = file.name)
 
-  if (length(leaf.node) == 0){
-    leaf.node = c(1)
-    save(leaf.node,file=file.name, compress = 'bzip2')
+  if (length(leaf.node) == 0)
+  {
+    leaf.node <- c(1)
+    save(leaf.node, file = file.name, compress = "bzip2")
   }
 
-  #Generate HTML output file
-  cluster.tab = export.groups(result.dir)
+  # Generate HTML output file
+  cluster.tab <-
+    export.groups(result.dir, silence.mode = silence.mode)
   save.html(result.dir)
-  if (no.plot == FALSE){
+  if (no.plot == FALSE)
+  {
     save.plots(result.dir)
   }
-  cat("The result files were saved at: ",result.dir,"\n")
-  return (cluster.tab)
+  if (!silence.mode)
+    cat("The result files were saved at: ", result.dir, "\n")
+  return(cluster.tab)
 
 }
-
-

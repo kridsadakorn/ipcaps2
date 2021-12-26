@@ -60,201 +60,427 @@
 #' @param no.plot No plot is generated if this option is TRUE. This option is
 #' useful when the system does not support X Windows in the unix based system.
 #' Default = FALSE.
+#' @param silence.mode To enable or disable silence mode. If silence mode is
+#' enabled, the fuction is processed without printing any message on the screen,
+#' and it is slightly faster. Default = TRUE.
+#' @param max.thread To specify a number of threads in order to run an analysis
+#' in parallel. If max.thread is specified more than the maximum number of CPU
+#' cores, then the maximum number of CPU cores are used instead. If max.thread
+#' is specified as floating point number, it will be rounded up using the
+#' function round(). Default = 0, which the maximum number of CPU cores are
+#' used.
+#' @param seed To specify a seed number for random generator. Default = NA,
+#' which means that a seed number is automatically chose.
 #'
 #' @return A data frame of input data.
 #'
 #' @include parallelization.R
 #'
 
-preprocess <- function( files, label.file, lab.col, rdata.infile, bed.infile, cate.list,
-                        result.dir, threshold, min.fst, max.thread=NA, reanalysis=FALSE, method="mix",
-                        min.in.group=20, datatype="snp", nonlinear = FALSE ,missing.char=NA,
-                        regression.file=NA,regression.col.first=NA,regression.col.last=NA,
-                        reg.method="linear", plot.as.pdf=NA,no.plot=NA){
-
-  if (reanalysis==FALSE){
-    #New analysis
-    if (file.exists(result.dir)){
-      cat(paste0("Note: the directory '",result.dir,"' is existed."),"\n")
-      sub.dir = "cluster_output"
-      i = 0
-      tmp.dir = file.path(result.dir,sub.dir)
-      while (file.exists(tmp.dir)){
-        i = i + 1
-        tmp.dir = file.path(result.dir,paste0(sub.dir,i))
+preprocess <-
+  function(files,
+           label.file,
+           lab.col,
+           rdata.infile,
+           bed.infile,
+           cate.list,
+           result.dir,
+           threshold,
+           min.fst,
+           reanalysis = FALSE,
+           method = "mix",
+           min.in.group = 20,
+           datatype = "snp",
+           nonlinear = FALSE,
+           missing.char = NA,
+           regression.file = NA,
+           regression.col.first = NA,
+           regression.col.last = NA,
+           reg.method = "linear",
+           plot.as.pdf = NA,
+           no.plot = NA,
+           silence.mode = FALSE,
+           max.thread = 0,
+           seed = NULL)
+  {
+    if (reanalysis == FALSE)
+    {
+      # New analysis
+      if (file.exists(result.dir))
+      {
+        if (!silence.mode)
+          cat(paste0("Note: the directory '",
+                     result.dir, "' is existed."),
+              "\n")
+        sub.dir <- "cluster_output"
+        i <- 0
+        tmp.dir <- file.path(result.dir, sub.dir)
+        while (file.exists(tmp.dir))
+        {
+          i <- i + 1
+          tmp.dir <-
+            file.path(result.dir, paste0(sub.dir, i))
+        }
+        result.dir <- tmp.dir
+      } else
+      {
+        dir.create(file.path(result.dir),
+                   showWarnings = FALSE,
+                   recursive = TRUE)
       }
-      result.dir = tmp.dir
-    }else{
-      dir.create(file.path(result.dir), showWarnings = FALSE, recursive = TRUE)
+
+
+      if (!silence.mode)
+        cat(paste0(
+          "The result files will be saved to this directory:",
+          result.dir,
+          "\n"
+        ))
+      dir.create(file.path(result.dir), showWarnings = FALSE)
+      img.dir <- file.path(result.dir, "images")
+      dir.create(file.path(img.dir), showWarnings = FALSE)
+      rdata.dir <- file.path(result.dir, "RData")
+      dir.create(file.path(rdata.dir), showWarnings = FALSE)
+
+      # create empty file
+      leaf.node <- c()
+      file.name <-
+        file.path(result.dir, "RData", "leafnode.RData")
+      save(leaf.node, file = file.name, compress = "bzip2")
+      node.list <- c()
+
+    } else
+    {
+      # Old analysis
+      if (file.exists(result.dir))
+      {
+        if (!silence.mode)
+          cat(paste0("Note:  directory '",
+                     result.dir, "' is existed."),
+              "\n")
+      } else
+      {
+        cat(
+          paste0(
+            "Error:  directory '",
+            result.dir,
+            "' is not existed. Please refer to a result directory."
+          ),
+          "\n"
+        )
+        quit()
+      }
     }
 
+    # Raw data
+    index <- NULL
+    label <- NULL
 
-    cat("The result files will be saved to this directory:",result.dir,"\n")
-    dir.create(file.path(result.dir), showWarnings = FALSE)
-    img.dir = file.path(result.dir,"images")
-    dir.create(file.path(img.dir), showWarnings = FALSE)
-    rdata.dir = file.path(result.dir,"RData")
-    dir.create(file.path(rdata.dir), showWarnings = FALSE)
+    file.name <- file.path(result.dir, "RData", "rawdata.RData")
+    if (!is.na(files))
+    {
+      raw.data <- NULL
+      snp.info <- NULL
+      ind.info <- NULL
 
-    #create empty file
-    leaf.node = c()
-    file.name = file.path(result.dir,"RData","leafnode.RData")
-    save(leaf.node, file=file.name, compress = 'bzip2')
-    node.list = c()
-
-  }else{
-    #Old analysis
-    if (file.exists(result.dir)){
-      cat(paste0("Note:  directory '",result.dir,"' is existed."),"\n")
-    }else{
-      cat(paste0("Error:  directory '",result.dir,"' is not existed. Please refer to a result directory."),"\n")
-      quit()
-    }
-  }
-
-  #Raw data
-  index = NULL
-  file.name = file.path(result.dir,"RData","rawdata.RData")
-  if (!is.na(files)){
-    label = NULL
-    raw.data = NULL
-    snp.info = NULL
-    ind.info = NULL
-
-    if (!file.exists(file.name)){
-      #import label
-      label = read.table(file=label.file, header=FALSE)
-      label = label[,lab.col]
-      #load genotype files
-      cat(paste0("Loading the input files ... \n"))
-      for (fname in files){
-        #test the separator
-        oneline = read.table(file=fname, header=FALSE, sep=',',nrows=1)
-        #separated by comma
-        if (dim(oneline)[2]>1){
-          tmp_geno = read.table(file=fname, header=FALSE, sep=',')
-        }else{
-          #separated by white space
-          tmp_geno = read.table(file=fname, header=FALSE)
+      if (!file.exists(file.name))
+      {
+        # import label
+        test.file <- file(label.file)
+        filetype <- summary(test.file)$class
+        close(test.file)
+        if (filetype == "gzfile")
+        {
+          zz <- gzfile(label.file, "rt")
+          label <- read.table(zz, header = FALSE)
+          close(zz)
+        } else
+        {
+          label <- read.table(file = label.file, header = FALSE)
         }
 
-        raw.data = rbind(raw.data,tmp_geno)
+        label <- label[, lab.col]
+        # load genotype files
+        if (!silence.mode)
+          cat(paste0("Loading the input files ... \n"))
+        for (fname in files)
+        {
+          # test the separator
+          test.file <- file(fname)
+          filetype <- summary(test.file)$class
+          close(test.file)
+          if (filetype == "gzfile")
+          {
+            zz <- gzfile(fname, "rt")
+            oneline <- read.table(zz,
+                                  header = FALSE,
+                                  sep = ",",
+                                  nrows = 1)
+            close(zz)
+          } else
+          {
+            oneline <- read.table(
+              file = fname,
+              header = FALSE,
+              sep = ",",
+              nrows = 1
+            )
+          }
+          # separated by comma
+          if (dim(oneline)[2] > 1)
+          {
+            test.file <- file(fname)
+            filetype <- summary(test.file)$class
+            close(test.file)
+            if (filetype == "gzfile")
+            {
+              zz <- gzfile(fname, "rt")
+              tmp_geno <- read.table(zz,
+                                     header = FALSE,
+                                     sep = ",")
+              close(zz)
+            } else
+            {
+              tmp_geno <- read.table(file = fname,
+                                     header = FALSE,
+                                     sep = ",")
+            }
+          } else
+          {
+            # separated by white space
+            test.file <- file(fname)
+            filetype <- summary(test.file)$class
+            close(test.file)
+            if (filetype == "gzfile")
+            {
+              zz <- gzfile(fname, "rt")
+              tmp_geno <-
+                read.table(zz, header = FALSE)
+              close(zz)
+            } else
+            {
+              tmp_geno <- read.table(file = fname, header = FALSE)
+            }
+          }
+
+          raw.data <- rbind(raw.data, tmp_geno)
+        }
+        # data needs to be like rows = individuals, columns = markers
+        raw.data <- t(raw.data)
+
+        index <- seq(1, length(raw.data[, 1]))
+        label <- unlist(label)
+        label <- as.factor(label)
+
+        tmp <- as.numeric(raw.data)
+        tmp1 <- matrix(tmp, nrow = length(raw.data[, 1]))
+        tmp2 <- as.data.frame(tmp1)
+        rownames(tmp2) <- index
+        raw.data <- tmp2
+
+      } else
+      {
+        if (!silence.mode)
+          cat(paste0("Loading: the file '",
+                     file.name, "' is existed."),
+              "\n")
+        # load rawdata file to prepare node 1
+        load(file.name)
+        index <- seq(1, length(raw.data[, 1]))
       }
-      # data needs to be like rows = individuals, columns = markers
-      raw.data = t(raw.data)
+    } else if (!is.na(rdata.infile))
+    {
+      load(rdata.infile)
+      if (!exists("raw.data"))
+      {
+        cat(paste0("Error: Can't find 'raw.data' in file ",
+                   rdata.infile,
+                   "\n"))
+        quit()
+      }
+      if (!exists("label"))
+      {
+        cat(paste0("Error: Can't find 'label' in file ",
+                   rdata.infile,
+                   "\n"))
+        quit()
+      }
+      index <- seq(1, length(raw.data[, 1]))
 
-      index = seq(1,length(raw.data[,1]))
-      label = unlist(label)
-      label = as.factor(label)
+    } else if (!is.na(bed.infile))
+    {
+      # load BED files
+      prefix <- gsub(".bed", "", bed.infile)
+      bed <- paste0(prefix, ".bed")
+      bim <- paste0(prefix, ".bim")
+      fam <- paste0(prefix, ".fam")
+      bed.data <- read.bed(bed, bim, fam, only.snp = FALSE)
+      raw.data <- bed.data$snp
+      snp.info <- bed.data$snp.info
+      ind.info <- bed.data$ind.info
+      index <- seq(1, length(raw.data[, 1]))
+      raw.data <- as.data.frame(raw.data)
+      rownames(raw.data) <- index
 
-      tmp = as.numeric(raw.data)
-      tmp1 = matrix(tmp,nrow=length(raw.data[,1]))
-      tmp2 = as.data.frame(tmp1)
-      rownames(tmp2) = index
-      raw.data = tmp2
+      # import label
+      test.file <- file(label.file)
+      filetype <- summary(test.file)$class
+      close(test.file)
+      if (filetype == "gzfile")
+      {
+        zz <- gzfile(label.file, "rt")
+        label <- read.table(zz, header = FALSE)
+        close(zz)
+      } else
+      {
+        label <- read.table(file = label.file, header = FALSE)
+      }
+      label <- label[, lab.col]
+      label <- unlist(label)
+      label <- as.factor(label)
 
-    }else{
-      cat(paste0("Loading: the file '",file.name,"' is existed."),"\n")
-      #load rawdata file to prepare node 1
-      load(file.name)
-      index = seq(1,length(raw.data[,1]))
+    } else if (!is.na(cate.list))
+    {
+      # load CATegorical files
+      raw.data <- pasre.categorical.data(cate.list)
+      index <- seq(1, length(raw.data[, 1]))
+
+      # import label
+      test.file <- file(label.file)
+      filetype <- summary(test.file)$class
+      close(test.file)
+      if (filetype == "gzfile")
+      {
+        zz <- gzfile(label.file, "rt")
+        label <- read.table(zz, header = FALSE)
+        close(zz)
+      } else
+      {
+        label <- read.table(file = label.file, header = FALSE)
+      }
+      label <- label[, lab.col]
+      label <- unlist(label)
+      label <- as.factor(label)
+
+    } else
+    {
+      # No proper input file
+      cat(paste0(
+        "Can not find the proper input files, ",
+        "please check the examples of "
+      ))
+      cat(paste0("ipcaps2() in order to use the function properly.\n"))
+      return(NULL)
     }
-  }else if (!is.na(rdata.infile)){
-    load(rdata.infile)
-    if (!exists("raw.data")){
-      cat(paste0("Error: Can't find 'raw.data' in file ",rdata.infile,"\n"))
-      quit()
+
+
+    # print(dim(raw.data)) Resolve missing value by median
+    X.median <- apply(raw.data, 2, median, na.rm = TRUE)
+    raw.data <-
+      t(apply(
+        raw.data,
+        1,
+        replace.missing,
+        missing = missing.char,
+        rep = X.median
+      ))
+
+    # regression
+    if ((!is.na(regression.file)) &&
+        (!is.na(regression.col.first)) &&
+        !(is.na(regression.col.last)))
+    {
+      test.file <- file(regression.file)
+      filetype <- summary(test.file)$class
+      close(test.file)
+      if (filetype == "gzfile")
+      {
+        zz <- gzfile(regression.file, "rt")
+        PCs <- read.table(zz, header = FALSE, sep = "")
+        close(zz)
+      } else
+      {
+        PCs <- read.table(file = regression.file,
+                          header = FALSE,
+                          sep = "")
+      }
+      PCs <-
+        data.matrix(PCs[, regression.col.first:regression.col.last])
+      # print(dim(raw.data))
+      if (!silence.mode)
+        cat(paste0("Correct for covariates using ",
+                   reg.method, " model\n"))
+      raw.data <-
+        apply(raw.data, 2, do.glm, PC = PCs, method = reg.method)
+      # print(dim(raw.data)) raw.data = lm(as.matrix(raw.data) ~ PCs,
+      # na.action=na.exclude)$residuals
     }
-    if (!exists("label")){
-      cat(paste0("Error: Can't find 'label' in file ",rdata.infile,"\n"))
-      quit()
+
+    if (exists("snp.info"))
+    {
+      save(raw.data,
+           label,
+           snp.info,
+           ind.info,
+           file = file.name,
+           compress = "bzip2")
+    } else
+    {
+      save(raw.data, label, file = file.name, compress = "bzip2")
     }
-    index = seq(1,length(raw.data[,1]))
+    no.marker <- dim(raw.data)[2]
+    no.individual <- dim(raw.data)[1]
+    if (!silence.mode)
+      cat(paste0(
+        "Input data: ",
+        no.individual,
+        " individuals, ",
+        no.marker,
+        " markers\n"
+      ))
+    # Save new experiment condition
+    file.name <-
+      file.path(result.dir, "RData", "condition.RData")
+    # load some parameters to add more parameters
+    save(
+      threshold,
+      min.fst,
+      no.marker,
+      no.individual,
+      reanalysis,
+      result.dir,
+      method,
+      min.in.group,
+      datatype,
+      nonlinear,
+      plot.as.pdf,
+      no.plot,
+      file = file.name,
+      compress = "bzip2",
+      silence.mode,
+      max.thread,
+      seed
+    )
 
-  }else if (!is.na(bed.infile)){
-    #load BED files
-    prefix = gsub('.bed','',bed.infile)
-    bed = paste0(prefix,".bed")
-    bim = paste0(prefix,".bim")
-    fam = paste0(prefix,".fam")
-    bed.data = read.bed(bed,bim,fam,only.snp=FALSE)
-    raw.data = bed.data$snp
-    snp.info = bed.data$snp.info
-    ind.info = bed.data$ind.info
-    index = seq(1,length(raw.data[,1]))
-    raw.data = as.data.frame(raw.data)
-    rownames(raw.data) = index
 
-    #import label
-    label = read.table(file=label.file, header=FALSE)
-    label = label[,lab.col]
-    label = unlist(label)
-    label = as.factor(label)
+    # Check if node 1 is existed
+    file.name <- file.path(result.dir, "RData", "node1.RData")
+    if (!file.exists(file.name))
+    {
+      #confident.list = NULL
+      confident.list = rep(0, length(index))
+      save(index,
+           confident.list,
+           file = file.name,
+           compress = "bzip2")
+    }
 
-  }else if (!is.na(cate.list)){
-    #load CATegorical files
-    raw.data = pasre.categorical.data(cate.list)
-    index = seq(1,length(raw.data[,1]))
-
-    #import label
-    label = read.table(file=label.file, header=FALSE)
-    label = label[,lab.col]
-    label = unlist(label)
-    label = as.factor(label)
-
-  }else{
-    #No proper input file
-    cat(paste0("Not found proper input files, please check the examples of "))
-    cat(paste0("ipcaps2() in order to use the function properly.\n"))
-    return(NULL)
+    return(result.dir)
   }
-
-
-  #print(dim(raw.data))
-  #Resolve missing value by median
-  X.median = apply(raw.data,2,median,na.rm=TRUE)
-  raw.data = t(apply(raw.data,1,replace.missing,missing=missing.char,rep=X.median))
-
-  #regression
-  if ((!is.na(regression.file)) && (!is.na(regression.col.first)) && !(is.na(regression.col.last))){
-    PCs = read.table(file=regression.file, header=FALSE, sep='')
-    PCs = data.matrix(PCs[,regression.col.first:regression.col.last])
-    #print(dim(raw.data))
-    cat(paste0("Correct for covariates using ",reg.method," model\n"))
-    raw.data = apply(raw.data,2,do.glm,PC=PCs,method=reg.method)
-    #print(dim(raw.data))
-    #raw.data = lm(as.matrix(raw.data) ~ PCs, na.action=na.exclude)$residuals
-  }
-
-  if (exists("snp.info")){
-    save(raw.data,label,snp.info,ind.info,file=file.name, compress = 'bzip2')
-  }else{
-    save(raw.data,label,file=file.name, compress = 'bzip2')
-  }
-
-  no.marker = dim(raw.data)[2]
-  no.individual = dim(raw.data)[1]
-  cat(paste0("Input data: ",no.individual," individuals, ",no.marker," markers\n"))
-  #Save new experiment condition
-  file.name = file.path(result.dir,"RData","condition.RData")
-  #load some parameters to add more parameters
-  save(threshold,min.fst,max.thread,no.marker,no.individual,reanalysis,result.dir,
-       method,min.in.group,datatype,nonlinear,plot.as.pdf,no.plot,file=file.name,
-       compress = 'bzip2')
-
-
-  #Check if node 1 is existed
-  file.name = file.path(result.dir,"RData","node1.RData")
-  if (!file.exists(file.name)){
-    save(index,file=file.name, compress = 'bzip2')
-  }
-
-  return(result.dir)
-}
 
 #' (Internal function) Manipulate categorical input files
 #'
-#' @param files IPCAPS2 supports categorical data, which rows represent features
+#' @param files ipcaps supports categorical data, which rows represent features
 #' and columns represent subjects or individuals. Each column needs to be
 #' separated by a space or a tab. A big text file should be divided into smaller
 #' files to load faster. For instance, to input 3 files, use as: files=c(
@@ -264,68 +490,130 @@ preprocess <- function( files, label.file, lab.col, rdata.infile, bed.infile, ca
 #'
 #' @import utils
 
-pasre.categorical.data <- function(files){
-
-  map.to.zero.one.list <- function(cate.data,uni.cate){
-    ret = c()
-    ar.uni.cate=strsplit(uni.cate,'#@')[[1]]
-    for (i in 1:length(ar.uni.cate)){
-      tmp = rep(0,length(cate.data))
-      tmp[which(cate.data == ar.uni.cate[i])] = 1
-      ret = cbind(ret,tmp)
+pasre.categorical.data <- function(files)
+{
+  map.to.zero.one.list <- function(cate.data, uni.cate)
+  {
+    ret <- c()
+    ar.uni.cate <- strsplit(uni.cate, "#@")[[1]]
+    for (i in seq(1, length(ar.uni.cate)))
+    {
+      tmp <- rep(0, length(cate.data))
+      tmp[which(cate.data == ar.uni.cate[i])] <- 1
+      ret <- cbind(ret, tmp)
     }
 
     return(ret)
   }
 
-  map.to.zero.one.matrix <- function(cate.data,uni.cate){
-    ret = c()
-    ar.uni.cate=strsplit(uni.cate,'#@')[[1]]
-    for (i in 1:length(ar.uni.cate)){
-      tmp = rep(0,length(cate.data))
-      tmp[which(cate.data == ar.uni.cate[i])] = 1
-      ret = cbind(ret,tmp)
+  map.to.zero.one.matrix <- function(cate.data, uni.cate)
+  {
+    ret <- c()
+    ar.uni.cate <- strsplit(uni.cate, "#@")[[1]]
+    for (i in seq(1, length(ar.uni.cate)))
+    {
+      tmp <- rep(0, length(cate.data))
+      tmp[which(cate.data == ar.uni.cate[i])] <- 1
+      ret <- cbind(ret, tmp)
     }
-    drop.col = which(colSums(ret) == max(colSums(ret)))
-    ret = ret[,-c(drop.col)]
-    return(list('test'=ret))
+    drop.col <- which(colSums(ret) == max(colSums(ret)))
+    ret <- ret[,-c(drop.col)]
+    return(list(test = ret))
   }
 
-  raw.data = NULL
-  cat(paste0("Loading the input files ... \n"))
+  silence.mode <- NULL
 
-  for (fname in files){
-    #test the separator
-    oneline = read.table(file=fname, header=FALSE, sep=',',nrows=1)
-    #separated by comma
-    if (dim(oneline)[2]>1){
-      tmp_geno = read.table(file=fname, header=FALSE, sep=',')
-    }else{
-      #separated by white space
-      tmp_geno = read.table(file=fname, header=FALSE)
+  raw.data <- NULL
+  if (!silence.mode)
+    cat(paste0("Loading the input files ... \n"))
+
+  for (fname in files)
+  {
+    # test the separator
+    test.file <- file(fname)
+    filetype <- summary(test.file)$class
+    close(test.file)
+    if (filetype == "gzfile")
+    {
+      zz <- gzfile(fname, "rt")
+      oneline <-
+        read.table(zz,
+                   header = FALSE,
+                   sep = ",",
+                   nrows = 1)
+      close(zz)
+    } else
+    {
+      oneline <- read.table(
+        file = fname,
+        header = FALSE,
+        sep = ",",
+        nrows = 1
+      )
+    }
+    # separated by comma
+    if (dim(oneline)[2] > 1)
+    {
+      test.file <- file(fname)
+      filetype <- summary(test.file)$class
+      close(test.file)
+      if (filetype == "gzfile")
+      {
+        zz <- gzfile(fname, "rt")
+        tmp_geno <-
+          read.table(zz, header = FALSE, sep = ",")
+        close(zz)
+      } else
+      {
+        tmp_geno <- read.table(file = fname,
+                               header = FALSE,
+                               sep = ",")
+      }
+    } else
+    {
+      # separated by white space
+      test.file <- file(fname)
+      filetype <- summary(test.file)$class
+      close(test.file)
+      if (filetype == "gzfile")
+      {
+        zz <- gzfile(fname, "rt")
+        tmp_geno <- read.table(zz, header = FALSE)
+        close(zz)
+      } else
+      {
+        tmp_geno <- read.table(file = fname, header = FALSE)
+      }
     }
 
-    raw.data = rbind(raw.data,tmp_geno)
+    raw.data <- rbind(raw.data, tmp_geno)
   }
 
-  n.row = dim(raw.data)[1]
-  uni.cate = apply(raw.data,2,unique)
-  if (is.list(uni.cate)){
-    uni.cate = mapply(paste,uni.cate,sep="#@",collapse="#@")
-    raw.data = mapply(map.to.zero.one.list,cate.data=raw.data,uni.cate=uni.cate)
-  }else{
-    uni.cate = apply(uni.cate,2,paste,sep="#@",collapse="#@")
-    raw.data = mapply(map.to.zero.one.matrix,cate.data=raw.data,uni.cate=uni.cate)
+  n.row <- dim(raw.data)[1]
+  uni.cate <- apply(raw.data, 2, unique)
+  if (is.list(uni.cate))
+  {
+    uni.cate <- mapply(paste, uni.cate, sep = "#@", collapse = "#@")
+    raw.data <- mapply(map.to.zero.one.list,
+                       cate.data = raw.data,
+                       uni.cate = uni.cate)
+  } else
+  {
+    uni.cate <- apply(uni.cate,
+                      2,
+                      paste,
+                      sep = "#@",
+                      collapse = "#@")
+    raw.data <- mapply(map.to.zero.one.matrix,
+                       cate.data = raw.data,
+                       uni.cate = uni.cate)
   }
 
-  raw.data = unlist(raw.data)
-  raw.data = matrix(raw.data, nrow=n.row, byrow=F)
+  raw.data <- unlist(raw.data)
+  raw.data <- matrix(raw.data, nrow = n.row, byrow = FALSE)
 
-  raw.data = as.data.frame(raw.data)
-  index = seq(1,length(raw.data[,1]))
-  rownames(raw.data) = index
+  raw.data <- as.data.frame(raw.data)
+  index <- seq(1, length(raw.data[, 1]))
+  rownames(raw.data) <- index
   return(raw.data)
 }
-
-
-

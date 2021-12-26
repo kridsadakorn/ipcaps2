@@ -4,13 +4,17 @@
 \alias{process.each.node}
 \title{(Internal function) Perform the iterative process for each node}
 \usage{
-process.each.node(node, work.dir)
+process.each.node(node, work.dir, no.rep = 5, cutoff.confident = 0.5)
 }
 \arguments{
 \item{node}{An integer representing the current node number which is being
 analyzed.}
 
 \item{work.dir}{A working directory.}
+
+\item{no.rep}{To specify a  number of time to replicate the internal clustering. Default = 5,}
+
+\item{cutoff.confident}{To specify a cutoff for confident values. Default = 0.5.}
 }
 \value{
 \code{NULL}

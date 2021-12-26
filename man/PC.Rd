@@ -6,13 +6,13 @@
 \title{Synthetic dataset containing the top 10 principal components (PC) from the
 dataset \code{raw.data}}
 \format{
-A matrix with 10 columns and 1,004 rows
+A matrix with 10 columns and 103 rows
 }
 \usage{
 data(ipcaps_example)
 }
 \description{
-A dataset contains a numeric matrix of 1,004 rows and 10 columns of top 10
+A dataset contains a numeric matrix of 103 rows and 10 columns of top 10
 PCs calculated from the dataset \code{raw.data}. The PCs were calculated
 using linear principal component analysis (PCA), see more datails at
 \code{KRIS::cal.pc.linear}

@@ -1,5 +1,10 @@
 # IPCAPS 2.0.0
 
+* parallel version
+* add confident scores for multiple clustering for stability
+* add more primitive clustering methods
+* ipcaps2 supports clara, pam, mixmod, meanshift, apclust, hclust, rubikclust, and mix-mode (mixmod + rubikclust)
+* update unit testing
 
 # IPCAPS 1.1.8
 

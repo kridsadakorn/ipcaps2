@@ -5,15 +5,15 @@
 \alias{label}
 \title{Synthetic dataset containing population labels for the dataset \code{raw.data}}
 \format{
-A vector with 1,004 elements.
+A vector with 103 elements.
 }
 \usage{
 data(ipcaps_example)
 }
 \description{
-A dataset contains a character vector of 1,004 elements containing labels or
-populations of 1,004 individuals which they belong. Five populations and
-outliers were labeled as "pop1", "pop2", "pop3", "pop4", "pop5", and "outlier".
+A dataset contains a character vector of 103 elements containing labels or
+populations of 103 individuals which they belong. Two populations and
+outliers were labeled as "pop1", "pop2", and "outlier3".
 }
 \seealso{
 \code{\link{raw.data}} and \code{\link{PC}}

@@ -14,6 +14,37 @@ knitr::opts_chunk$set(
 )
 ```
 
+Here set up
+
 ```{r setup}
 library(IPCAPS2)
+
+BED.file <- system.file("extdata", "ipcaps_example.bed", package = "IPCAPS2")
+LABEL.file <- system.file("extdata", "ipcaps_example_individuals.txt.gz", package = "IPCAPS2")
+
 ```
+
+There cluster
+```{r clustering1}
+
+res1 <- ipcaps2(bed = BED.file, label.file = LABEL.file, lab.col = 2, out = tempdir(), silence = TRUE, method = "mix")
+
+table(res1$cluster$label, res1$cluster$group)
+
+```
+
+Here all methods
+```{r allmethods}
+
+
+res2 <- ipcaps2(bed = BED.file, label.file = LABEL.file, lab.col = 2, out = tempdir(), silence = TRUE, method = "pam")
+res3 <- ipcaps2(bed = BED.file, label.file = LABEL.file, lab.col = 2, out = tempdir(), silence = TRUE, method = "mixmod")
+res4 <- ipcaps2(bed = BED.file, label.file = LABEL.file, lab.col = 2, out = tempdir(), silence = TRUE, method = "meanshift")
+res5 <- ipcaps2(bed = BED.file, label.file = LABEL.file, lab.col = 2, out = tempdir(), silence = TRUE, method = "apcluster")
+res6 <- ipcaps2(bed = BED.file, label.file = LABEL.file, lab.col = 2, out = tempdir(), silence = TRUE, method = "hclust")
+res7 <- ipcaps2(bed = BED.file, label.file = LABEL.file, lab.col = 2, out = tempdir(), silence = TRUE, method = "rubikclust")
+res8 <- ipcaps2(bed = BED.file, label.file = LABEL.file, lab.col = 2, out = tempdir(), silence = TRUE, method = "clara")
+
+
+```
+

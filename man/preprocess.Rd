@@ -14,7 +14,6 @@ preprocess(
   result.dir,
   threshold,
   min.fst,
-  max.thread = NA,
   reanalysis = FALSE,
   method = "mix",
   min.in.group = 20,
@@ -26,7 +25,10 @@ preprocess(
   regression.col.last = NA,
   reg.method = "linear",
   plot.as.pdf = NA,
-  no.plot = NA
+  no.plot = NA,
+  silence.mode = FALSE,
+  max.thread = 0,
+  seed = NULL
 )
 }
 \arguments{
@@ -66,9 +68,6 @@ cluster_out, cluster_out1, cluster_out2, etc.}
 \item{threshold}{Cutoff value for EigenFit.}
 
 \item{min.fst}{Minimum Fst between a pair of subgroups.}
-
-\item{max.thread}{(Require the parallelization patch) Maximum number of
-concurrent threads.}
 
 \item{reanalysis}{(Unimplemented) To specify whether it is re-analysis or
 not. If TRUE, it is re-analysis, otherwise it is not. Default = FALSE.}
@@ -111,6 +110,20 @@ PNG.}
 \item{no.plot}{No plot is generated if this option is TRUE. This option is
 useful when the system does not support X Windows in the unix based system.
 Default = FALSE.}
+
+\item{silence.mode}{To enable or disable silence mode. If silence mode is
+enabled, the fuction is processed without printing any message on the screen,
+and it is slightly faster. Default = TRUE.}
+
+\item{max.thread}{To specify a number of threads in order to run an analysis
+in parallel. If max.thread is specified more than the maximum number of CPU
+cores, then the maximum number of CPU cores are used instead. If max.thread
+is specified as floating point number, it will be rounded up using the
+function round(). Default = 0, which the maximum number of CPU cores are
+used.}
+
+\item{seed}{To specify a seed number for random generator. Default = NA,
+which means that a seed number is automatically chose.}
 }
 \value{
 A data frame of input data.

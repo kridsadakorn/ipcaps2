@@ -20,7 +20,12 @@ ipcaps2(
   threshold = 0.18,
   min.fst = 8e-04,
   min.in.group = 20,
-  no.plot = FALSE
+  no.plot = FALSE,
+  data.type = "snp",
+  silence = FALSE,
+  max.thread = 0,
+  no.rep = 5,
+  cutoff.confident = 0.5
 )
 }
 \arguments{
@@ -85,6 +90,24 @@ subgroup. Default = 20.}
 \item{no.plot}{No plot is generated if this option is TRUE. This option is
 useful when the system does not support X Windows in the unix based system.
 Default = FALSE.}
+
+\item{data.type}{To specify which type of input data between 'snp' and
+'linear'. Default = 'snp'.}
+
+\item{silence}{To enable or disable silence mode. If silence mode is enabled,
+the fuction is processed without printing any message on the screen, and
+it is slightly faster. Default = TRUE.}
+
+\item{max.thread}{To specify a number of threads in order to run an analysis
+in parallel. If max.thread is specified more than the maximum number of CPU
+cores, then the maximum number of CPU cores are used instead. If max.thread
+is specified as floating point number, it will be rounded up using the
+function round(). Default = 0, which the maximum number of CPU cores are
+used.}
+
+\item{no.rep}{To specify a  number of time to replicate the internal clustering. Default = 5,}
+
+\item{cutoff.confident}{To specify a cutoff for confident values. Default = 0.5.}
 }
 \value{
 Returns the list object containing 2 internal objects;
@@ -133,7 +156,7 @@ BED.file <- system.file("extdata", "ipcaps_example.bed", package = "IPCAPS2")
 LABEL.file <- system.file("extdata", "ipcaps_example_individuals.txt.gz",
                           package = "IPCAPS2")
 my.cluster1 <- ipcaps2(bed = BED.file, label.file = LABEL.file, lab.col = 2,
-out = tempdir())
+out = tempdir(),silence = TRUE , no.rep = 1)
 
 table(my.cluster1$cluster$label, my.cluster1$cluster$group)
 
@@ -146,7 +169,7 @@ table(my.cluster1$cluster$label, my.cluster1$cluster$group)
 #                           package="IPCAPS2")
 
 #my.cluster2 <- ipcaps2(files = c(text.file), label.file = LABEL.file, lab.col = 2,
-#                       out=tempdir())
+#                       out=tempdir(), ,silence=TRUE, no.rep=1)
 #table(my.cluster2$cluster$label, my.cluster2$cluster$group)
 
 # The other alternative way, use an R Data file as input
@@ -154,7 +177,7 @@ table(my.cluster1$cluster$label, my.cluster1$cluster$group)
 
 #rdata.file <- system.file("extdata", "ipcaps_example.rda", package = "IPCAPS2")
 
-#my.cluster3 <- ipcaps2(rdata = rdata.file, out = tempdir())
+#my.cluster3 <- ipcaps2(rdata = rdata.file, out = tempdir(), silence=TRUE, no.rep=1)
 #table(my.cluster3$cluster$label, my.cluster3$cluster$group)
 
 }

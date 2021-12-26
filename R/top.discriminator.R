@@ -1,4 +1,5 @@
 
+
 #' Detecting top discriminators between two groups
 #'
 #' @description Detects top discriminators that contribute to
@@ -44,7 +45,7 @@
 #' # Use the example files embedded in the package
 #' BED.file <- system.file("extdata","ipcaps_example.bed",package="IPCAPS2")
 #' LABEL.file <- system.file("extdata","ipcaps_example_individuals.txt.gz",package="IPCAPS2")
-#' my.cluster <- ipcaps2(bed=BED.file,label.file=LABEL.file,lab.col=2,out=tempdir())
+#' my.cluster <- ipcaps2(bed=BED.file,label.file=LABEL.file,lab.col=2,out=tempdir(),silence=TRUE,no.rep=1)
 #' table(my.cluster$cluster$label,my.cluster$cluster$group)
 #' # 1 2 3 4 5 6
 #' # outlier4 5 4 1 0 0 0
@@ -93,78 +94,109 @@
 #' #V5452 1 marker5452 0 54520000 A T 0.11337260
 #' #V2348 1 marker2348 0 23480000 A T 0.11194490
 
-top.discriminator <- function(cluster.obj = NULL, group1, group2, bim.file,
-                              use.node.number = FALSE, num.top = 100,
-                              percentile = 0.9, use.percentile = FALSE,
-                              use.path = FALSE , result.path = NULL){
+top.discriminator <-
+  function(cluster.obj = NULL,
+           group1,
+           group2,
+           bim.file,
+           use.node.number = FALSE,
+           num.top = 100,
+           percentile = 0.9,
+           use.percentile = FALSE,
+           use.path = FALSE ,
+           result.path = NULL) {
+    raw.data <- NULL
+    used.path <- NULL
 
-  raw.data <- NULL
-  used.path <- NULL
-
-  if (is.null(cluster.obj) && is.null(result.path)){
-    cat(paste0("Incorrect parameter, please use the object returned from the function ipcaps as an input\n"))
-    return(NULL)
-  }
-
-  if (use.path == TRUE){
-    used.path = result.path
-    if (!dir.exists(used.path)){
-      cat(paste0("The result path doesn't exist, please check result.path\n"))
+    if (is.null(cluster.obj) && is.null(result.path)) {
+      cat(
+        paste0(
+          "Incorrect parameter, please use the object ",
+          "returned from the ",
+          "function ipcaps as an input\n"
+        )
+      )
       return(NULL)
     }
-    result.filename = file.path(used.path,"RData","result.RData")
-    load(result.filename)
-  }else{
-    used.path = cluster.obj$output.dir
-  }
 
-
-  raw.filename = file.path(used.path,"RData","rawdata.RData")
-  if (!file.exists(raw.filename)){
-    cat(paste0("Not found the rawdata file: ",raw.filename,"\n"))
-    return(NULL)
-  }else{
-    load(raw.filename)
-    if (is.null(snp.info)){
-      if (!file.exists(bim.file)){
-        cat(paste0("Not found the bim file: ",bim.file,"\n"))
+    if (use.path == TRUE) {
+      used.path = result.path
+      if (!dir.exists(used.path)) {
+        cat(paste0("The result path doesn't exist, please check result.path\n"))
         return(NULL)
-      }else{
-        snp.info <- read.table(file=bim.file, colClasses=c('factor','factor','factor','factor','factor','factor'))
+      }
+      result.filename = file.path(used.path, "RData", "result.RData")
+      load(result.filename)
+    } else{
+      used.path = cluster.obj$output.dir
+    }
+
+
+    raw.filename = file.path(used.path, "RData", "rawdata.RData")
+    if (!file.exists(raw.filename)) {
+      cat(paste0("Not found the rawdata file: ", raw.filename, "\n"))
+      return(NULL)
+    } else{
+      load(raw.filename)
+      if (is.null(snp.info)) {
+        if (!file.exists(bim.file)) {
+          cat(paste0("Not found the bim file: ", bim.file, "\n"))
+          return(NULL)
+        } else{
+          snp.info <-
+            read.table(
+              file = bim.file,
+              colClasses = c(
+                'factor',
+                'factor',
+                'factor',
+                'factor',
+                'factor',
+                'factor'
+              )
+            )
+        }
       }
     }
+
+
+    if (num.top < 0) {
+      cat(paste0("num.top must be more than zero\n"))
+      return(NULL)
+    }
+
+    if (use.node.number == FALSE) {
+      index1 <-
+        cluster.obj$cluster$row.number[which(cluster.obj$cluster$group == group1)]
+      index2 <-
+        cluster.obj$cluster$row.number[which(cluster.obj$cluster$group == group2)]
+    } else{
+      index1 <-
+        cluster.obj$cluster$row.number[which(cluster.obj$cluster$node == group1)]
+      index2 <-
+        cluster.obj$cluster$row.number[which(cluster.obj$cluster$node == group2)]
+    }
+
+    all.fst <- fst.each.snp.hudson(raw.data, index1, index2)
+
+    snp.with.fst <- cbind(snp.info, all.fst)
+    colnames(snp.with.fst) <-
+      c('chr',
+        'SNP',
+        'centimorgans',
+        'position',
+        'allele1',
+        'allele2',
+        'Fst')
+    top.fst.snp <- snp.with.fst[order(-snp.with.fst$Fst), ]
+
+    if (use.percentile == FALSE) {
+      ret <- head(top.fst.snp, n = num.top)
+    } else{
+      qfst = quantile(snp.with.fst$Fst,
+                      c(as.double(percentile)),
+                      na.rm = TRUE)
+      ret = top.fst.snp[which(top.fst.snp$Fst > qfst), ]
+    }
+    return(ret)
   }
-
-
-  if (num.top<0){
-    cat(paste0("num.top must be more than zero\n"))
-    return(NULL)
-  }
-
-  if (use.node.number == FALSE){
-    index1 <- cluster.obj$cluster$row.number[which(cluster.obj$cluster$group == group1)]
-    index2 <- cluster.obj$cluster$row.number[which(cluster.obj$cluster$group == group2)]
-  }else{
-    index1 <- cluster.obj$cluster$row.number[which(cluster.obj$cluster$node == group1)]
-    index2 <- cluster.obj$cluster$row.number[which(cluster.obj$cluster$node == group2)]
-  }
-
-  all.fst <- fst.each.snp.hudson(raw.data,index1,index2)
-
-  snp.with.fst <- cbind(snp.info,all.fst)
-  colnames(snp.with.fst) <- c('chr','SNP','centimorgans','position','allele1','allele2','Fst')
-  top.fst.snp <- snp.with.fst[order(-snp.with.fst$Fst),]
-
-  if (use.percentile == FALSE){
-    ret <- head(top.fst.snp, n=num.top)
-  }else{
-    qfst = quantile(snp.with.fst$Fst, c(as.double(percentile)), na.rm = T)
-    ret = top.fst.snp[which(top.fst.snp$Fst > qfst),]
-  }
-
-
-  return(ret)
-}
-
-
-

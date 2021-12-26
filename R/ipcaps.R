@@ -55,6 +55,19 @@
 #' @param no.plot No plot is generated if this option is TRUE. This option is
 #' useful when the system does not support X Windows in the unix based system.
 #' Default = FALSE.
+#' @param data.type To specify which type of input data between 'snp' and
+#' 'linear'. Default = 'snp'.
+#' @param silence To enable or disable silence mode. If silence mode is enabled,
+#' the fuction is processed without printing any message on the screen, and
+#' it is slightly faster. Default = TRUE.
+#' @param max.thread To specify a number of threads in order to run an analysis
+#' in parallel. If max.thread is specified more than the maximum number of CPU
+#' cores, then the maximum number of CPU cores are used instead. If max.thread
+#' is specified as floating point number, it will be rounded up using the
+#' function round(). Default = 0, which the maximum number of CPU cores are
+#' used.
+#' @param no.rep To specify a  number of time to replicate the internal clustering. Default = 5,
+#' @param cutoff.confident To specify a cutoff for confident values. Default = 0.5.
 #'
 #' @return Returns the list object containing 2 internal objects;
 #' output.dir as class character and cluster as class data.frame. The object
@@ -82,6 +95,13 @@
 #'  a com-prehensive matrix.
 #'
 #' @export
+#'
+#' @import parallel
+#' @import foreach
+# @import doMC
+#' @import doParallel
+#' @import doRNG
+#' @importFrom  snow snow.time
 #'
 #' @include preprocess.R
 #' @include postprocess.R
@@ -138,7 +158,7 @@
 #' LABEL.file <- system.file("extdata", "ipcaps_example_individuals.txt.gz",
 #'                           package = "IPCAPS2")
 #' my.cluster1 <- ipcaps2(bed = BED.file, label.file = LABEL.file, lab.col = 2,
-#' out = tempdir())
+#' out = tempdir(),silence = TRUE , no.rep = 1)
 #'
 #' table(my.cluster1$cluster$label, my.cluster1$cluster$group)
 #'
@@ -151,7 +171,7 @@
 #' #                           package="IPCAPS2")
 #'
 #' #my.cluster2 <- ipcaps2(files = c(text.file), label.file = LABEL.file, lab.col = 2,
-#' #                       out=tempdir())
+#' #                       out=tempdir(), ,silence=TRUE, no.rep=1)
 #' #table(my.cluster2$cluster$label, my.cluster2$cluster$group)
 #'
 #' # The other alternative way, use an R Data file as input
@@ -159,255 +179,451 @@
 #'
 #' #rdata.file <- system.file("extdata", "ipcaps_example.rda", package = "IPCAPS2")
 #'
-#' #my.cluster3 <- ipcaps2(rdata = rdata.file, out = tempdir())
+#' #my.cluster3 <- ipcaps2(rdata = rdata.file, out = tempdir(), silence=TRUE, no.rep=1)
 #' #table(my.cluster3$cluster$label, my.cluster3$cluster$group)
 #'
-ipcaps2 <- function( bed = NA, rdata = NA, files = NA, label.file = NA,
-                    lab.col = 1, out, plot.as.pdf = FALSE, method = 'mix',
-                    missing = NA, covariate = NA, cov.col.first = NA,
-                    cov.col.last = NA, threshold = 0.18, min.fst = 0.0008,
-                    min.in.group = 20, no.plot = FALSE){
+ipcaps2 <-
+  function(bed = NA,
+           rdata = NA,
+           files = NA,
+           label.file = NA,
+           lab.col = 1,
+           out,
+           plot.as.pdf = FALSE,
+           method = "mix",
+           missing = NA,
+           covariate = NA,
+           cov.col.first = NA,
+           cov.col.last = NA,
+           threshold = 0.18,
+           min.fst = 8e-04,
+           min.in.group = 20,
+           no.plot = FALSE,
+           data.type = "snp",
+           silence = FALSE,
+           max.thread = 0,
+           no.rep = 5,
+           cutoff.confident = 0.5)
+  {
+    filename.label <- label.file
+    label.column <- lab.col
+    result.dir <- out
+    rerun <- FALSE
+    rdata.infile <- rdata
+    bed.infile <- bed
+    datatype <- data.type
+    nonlinear <- FALSE
+    missing.char <- missing
+    regression.file <- covariate
+    regression.col.first <- cov.col.first
+    regression.col.last <- cov.col.last
+    file.list <- files
+    max.thread <- max.thread
+    cate.list <- NA
+    silence.mode <- silence
+    seed.num <- 1234
+    #the seed number has no effected to parallel version of IPCAPS
+    start.time <- Sys.time()
 
-  filename.label = label.file
-  label.column = lab.col
-  result.dir = out
-  rerun = FALSE
-  rdata.infile = rdata
-  bed.infile = bed
-  datatype = 'snp'
-  nonlinear = FALSE
-  missing.char = missing
-  regression.file = covariate
-  regression.col.first = cov.col.first
-  regression.col.last = cov.col.last
-  file.list = files
-  max.thread = 1
-  cate.list = NA
+    if (length(threshold) <= 0)
+    {
+      threshold <- 0.18
+      # work in general. The lowest value is 0.03 for the data without
+      # outlier
+    }
 
-  start.time <- Sys.time()
+    if (length(min.fst) <= 0)
+    {
+      min.fst <- 8e-04
+    }
 
-  if (length(threshold)<=0){
-    threshold=0.18 #work in general. The lowest value is 0.03 for the data without outlier
-  }
+    usage <- paste0("Usage: ?ipcaps\n")
 
-  if (length(min.fst)<=0){
-    min.fst=0.0008
-  }
+    if (length(result.dir) == 0)
+    {
+      cat(usage)
+      quit()
+    }
+    if ((length(filename.label) == 0 || is.na(file.list)) &&
+        (length(rdata.infile) == 0) &&
+        (length(bed.infile) == 0) &&
+        is.na(cate.list))
+    {
+      cat(usage)
+      quit()
+    }
 
-  usage= paste0("Usage: ?ipcaps\n")
+    if (silence.mode != FALSE)
+    {
+      # To protect the error from user's input
+      silence.mode <- TRUE
+    }
 
-  if (length(result.dir)==0){
-    cat(usage)
-    quit()
-  }
-  if ((length(filename.label)==0 || is.na(file.list)) && (length(rdata.infile)==0) &&
-      (length(bed.infile)==0) && is.na(cate.list)){
-    cat(usage)
-    quit()
-  }
+    if (!silence.mode)
+      cat(paste0("Running ... ipcaps \n\toutput: ", result.dir, " \n"))
 
-  cat(paste0("Running ... IPCAPS2 \n\toutput: ",result.dir," \n"))
+    if (length(filename.label) > 0)
+    {
+      if (!silence.mode)
+        cat(paste0("\tlabel file: ", filename.label, "\n"))
+    }
 
-  if (length(filename.label)>0){
-    cat(paste0("\tlabel file: ",filename.label,"\n"))
-  }
-
-  if (length(label.column)>0){
-    if (is.na(as.integer(label.column))){
-      #except only comma as separator, otherwise
-      if (length(strsplit(label.column,',')[[1]])){
-        if (anyNA(as.integer(strsplit(label.column,',')[[1]]))){
-          label.column = 1
-          cat(paste0("\tlabel column: ",label.column,"\n"))
-        }else{
-          label.column = as.integer(strsplit(label.column,',')[[1]])
+    if (length(label.column) > 0)
+    {
+      if (is.na(as.integer(label.column)))
+      {
+        # except only comma as separator, otherwise
+        if (length(strsplit(label.column, ",")[[1]]))
+        {
+          if (anyNA(as.integer(strsplit(label.column, ",")[[1]])))
+          {
+            label.column <- 1
+            if (!silence.mode)
+              cat(paste0("\tlabel column: ", label.column, "\n"))
+          } else
+          {
+            label.column <- as.integer(strsplit
+                                       (label.column, ",")[[1]])
+          }
+        } else
+        {
+          label.column <- 1
+          if (!silence.mode)
+            cat(paste0("\tlabel column: ", label.column, "\n"))
         }
-      }else{
-        label.column = 1
-        cat(paste0("\tlabel column: ",label.column,"\n"))
+      } else
+      {
+        label.column <- as.integer(label.column)
+        if (!silence.mode)
+          cat(paste0("\tlabel column: ", label.column, "\n"))
       }
-    }else{
-      label.column = as.integer(label.column)
-      cat(paste0("\tlabel column: ",label.column,"\n"))
-    }
-  }else{
-    label.column = 1
-  }
-
-  if (length(threshold)>0){
-    cat(paste0("\tthreshold: ",threshold,"\n"))
-  }
-
-  if (length(min.fst)>0){
-    cat(paste0("\tminimum Fst: ",min.fst,"\n"))
-  }
-
-  if (length(max.thread)<=0){
-    max.thread=NA
-  }
-  if (is.na(max.thread)){
-    max.thread = 1
-  }else{
-    if (max.thread < 1){
-      max.thread = 1
-    }
-  }
-  cat(paste0("\tmaximum thread: ",max.thread,"\n"))
-
-  if (length(method)>0){
-    cat(paste0("\tmethod: ",method,"\n"))
-  }else{
-    method="mix"
-  }
-
-  if (!is.na(rdata.infile)){
-    if (file.exists(rdata.infile)){
-      cat(paste0("\trdata: ",rdata.infile,"\n"))
-    }else{
-      rdata.infile = NA
-    }
-  }else{
-    rdata.infile = NA
-  }
-
-  if (!is.na(bed.infile)){
-    if (file.exists(bed.infile)){
-      cat(paste0("\tbed: ",bed.infile,"\n"))
-    }else{
-      bed.infile = NA
-    }
-  }else{
-    bed.infile = NA
-  }
-
-  if (!is.na(file.list)){
-    cat(paste0("\tfiles: \n"))
-    print(file.list)
-  }
-
-  if (plot.as.pdf){
-    cat(paste0("\tplot.as.pdf: TRUE\n"))
-    plot.as.pdf=TRUE
-  }else{
-    plot.as.pdf=FALSE
-  }
-
-  if (length(min.in.group)>0){
-    if (min.in.group < 5){
-      min.in.group = 5
-    }
-    cat(paste0("\tminimum in group: ",min.in.group,"\n"))
-  }else{
-    min.in.group=20
-  }
-
-  if (length(datatype)>0){
-    cat(paste0("\tdata type: ",datatype,"\n"))
-  }else{
-    datatype="snp"
-  }
-
-  if (length(missing.char)>0){
-    cat(paste0("\tmissing: ",missing.char,"\n"))
-  }else{
-    missing.char = NA
-  }
-
-  if (length(regression.file)>0 && !is.na(regression.file)){
-    cat(paste0("\tcovariate file: ",regression.file,"\n"))
-  }else{
-    regression.file = NA
-  }
-
-  if (!is.na(regression.col.first) && regression.col.first>0){
-    cat(paste0("\tcovariate first column: ",regression.col.first,"\n"))
-  }else{
-    regression.col.first = NA
-  }
-
-  if (!is.na(regression.col.last) && regression.col.last>0){
-    cat(paste0("\tcovariate last column: ",regression.col.last,"\n"))
-  }else{
-    regression.col.last = NA
-  }
-
-
-  #preprocessing step
-  cat(paste0("In preprocessing step\n"))
-
-  result.dir=preprocess(files=file.list, label.file=filename.label, lab.col=label.column,
-                        rdata.infile=rdata.infile, bed.infile=bed.infile, cate.list=cate.list,
-                        result.dir=result.dir, threshold=threshold, min.fst=min.fst,
-                        reanalysis=rerun, method=method, min.in.group=min.in.group,datatype=datatype,
-                        nonlinear=nonlinear, missing.char=missing.char,
-                        regression.file=regression.file, regression.col.first=regression.col.first,
-                        regression.col.last=regression.col.last,plot.as.pdf=plot.as.pdf,no.plot=no.plot)
-
-  if (is.null(result.dir)){
-    return(NULL)
-  }
-
-  #job scheduler
-  cat(paste0("Start calculating\n"))
-
-  #create the first task for Node 1
-  #status 0 = unprocessed, 1 = processing, 2 = done , -1 = deleted
-
-  node = c(1)
-  parent.node = c(0)
-  status = c(0)
-
-  tree = data.frame(node,parent.node,status)
-  file.name = file.path(result.dir,"RData","tree.RData")
-  save(tree,file=file.name, compress = 'bzip2')
-
-  while (TRUE){
-
-    file.name = file.path(result.dir,"RData","tree.RData")
-    load(file.name)
-
-    #check for terminate loop
-    row2 = which(tree$status==2)
-    row_1 = which(tree$status==-1)
-    if ((length(row2)+length(row_1))==length(tree$node)){
-      break
+    } else
+    {
+      label.column <- 1
     }
 
-    file.name = file.path(result.dir,"RData","condition.RData")
-    load(file=file.name)
+    if (length(threshold) > 0)
+    {
+      if (!silence.mode)
+        cat(paste0("\tthreshold: ", threshold, "\n"))
+    }
 
-    #take one node to process
-    which.row = which(tree$status==0)
-    if (length(which.row)>0){
-      exe.node.list = tree$node[which.row]
-      for(idx in exe.node.list) {
-        process.each.node(node=idx,work.dir=result.dir)
+    if (length(min.fst) > 0)
+    {
+      if (!silence.mode)
+        cat(paste0("\tminimum Fst: ", min.fst, "\n"))
+    }
+
+
+    # if (length(seed) <= 0)
+    # {
+    #     seed.num <- NA
+    # }
+    # if (is.na(seed))
+    # {
+    #     seed.num <- NA
+    # } else
+    # {
+    #     seed.num <- as.integer(seed)
+    # }
+
+    if (length(max.thread) <= 0)
+    {
+      max.thread <- detectCores()
+    }
+    if (is.na(max.thread))
+    {
+      max.thread <- detectCores()
+    } else
+    {
+      max.thread <- round(max.thread)
+      if (max.thread < 1)
+      {
+        max.thread <- detectCores()
+      } else if (max.thread > detectCores())
+      {
+        max.thread <- detectCores()
+      }
+      # register for parallel threads
+      #registerDoMC(max.thread)
+      threads <- makeCluster(max.thread, type = "SOCK")
+      registerDoParallel(threads)
+    }
+
+
+    if (!silence.mode)
+      cat(paste0("\tmaximum thread: ", max.thread, "\n"))
+
+    if (length(method) > 0)
+    {
+      if (!silence.mode)
+        cat(paste0("\tmethod: ", method, "\n"))
+    } else
+    {
+      method <- "mix"
+    }
+
+    if (!is.na(rdata.infile))
+    {
+      if (file.exists(rdata.infile))
+      {
+        if (!silence.mode)
+          cat(paste0("\trdata: ", rdata.infile, "\n"))
+      } else
+      {
+        rdata.infile <- NA
+      }
+    } else
+    {
+      rdata.infile <- NA
+    }
+
+    if (!is.na(bed.infile))
+    {
+      if (file.exists(bed.infile))
+      {
+        if (!silence.mode)
+          cat(paste0("\tbed: ", bed.infile, "\n"))
+      } else
+      {
+        bed.infile <- NA
+      }
+    } else
+    {
+      bed.infile <- NA
+    }
+
+    if (!is.na(file.list))
+    {
+      if (!silence.mode)
+        cat(paste0("\tfiles: \n"))
+      print(file.list)
+    }
+
+    if (plot.as.pdf)
+    {
+      if (!silence.mode)
+        cat(paste0("\tplot.as.pdf: TRUE\n"))
+      plot.as.pdf <- TRUE
+    } else
+    {
+      plot.as.pdf <- FALSE
+    }
+
+    if (length(min.in.group) > 0)
+    {
+      if (min.in.group < 5)
+      {
+        min.in.group <- 5
+      }
+      if (!silence.mode)
+        cat(paste0("\tminimum in group: ", min.in.group, "\n"))
+    } else
+    {
+      min.in.group <- 20
+    }
+
+    if (length(datatype) > 0)
+    {
+      if (datatype %in% c("snp", "linear"))
+      {
+        if (!silence.mode)
+          cat(paste0("\tdata type: ", datatype, "\n"))
+      } else
+      {
+        if (!silence.mode)
+          cat(paste0("\tInvalid data type (", datatype, "), "))
+        datatype <- "linear"
+        if (!silence.mode)
+          cat(paste0("assume the data type to be ", datatype, "\n"))
+      }
+    } else
+    {
+      datatype <- "snp"
+    }
+
+    if (length(missing.char) > 0)
+    {
+      if (!silence.mode)
+        cat(paste0("\tmissing: ", missing.char, "\n"))
+    } else
+    {
+      missing.char <- NA
+    }
+
+    if (length(regression.file) > 0 && !is.na(regression.file))
+    {
+      if (!silence.mode)
+        cat(paste0("\tcovariate file: ", regression.file, "\n"))
+    } else
+    {
+      regression.file <- NA
+    }
+
+    if (!is.na(regression.col.first) && regression.col.first > 0)
+    {
+      if (!silence.mode)
+        cat(paste0("\tcovariate first column: ",
+                   regression.col.first,
+                   "\n"))
+    } else
+    {
+      regression.col.first <- NA
+    }
+
+    if (!is.na(regression.col.last) && regression.col.last > 0)
+    {
+      if (!silence.mode)
+        cat(paste0("\tcovariate last column: ", regression.col.last,
+                   "\n"))
+    } else
+    {
+      regression.col.last <- NA
+    }
+
+    if (silence.mode == FALSE)
+    {
+      cat(paste0("\tsilence: FALSE\n"))
+    }
+
+    # preprocessing step
+    if (!silence.mode)
+      cat(paste0("In preprocessing step\n"))
+
+    result.dir <-
+      preprocess(
+        files = file.list,
+        label.file = filename.label,
+        lab.col = label.column,
+        rdata.infile = rdata.infile,
+        bed.infile = bed.infile,
+        cate.list = cate.list,
+        result.dir = result.dir,
+        threshold = threshold,
+        min.fst = min.fst,
+        reanalysis = rerun,
+        method = method,
+        min.in.group = min.in.group,
+        datatype = datatype,
+        nonlinear = nonlinear,
+        missing.char = missing.char,
+        regression.file = regression.file,
+        regression.col.first = regression.col.first,
+        regression.col.last = regression.col.last,
+        plot.as.pdf = plot.as.pdf,
+        no.plot = no.plot,
+        silence.mode = silence.mode,
+        max.thread = max.thread,
+        seed = seed.num
+      )
+
+    if (is.null(result.dir))
+    {
+      return(NULL)
+    }
+
+    # job scheduler
+    if (!silence.mode)
+      cat(paste0("Start calculating\n"))
+
+    # create the first task for Node 1 status 0 = unprocessed, 1 =
+    # processing, 2 = done , -1 = deleted
+
+    node <- c(1)
+    parent.node <- c(0)
+    status <- c(0)
+
+    tree <- data.frame(node, parent.node, status)
+    file.name <- file.path(result.dir, "RData", "tree.RData")
+    save(tree, file = file.name, compress = "bzip2")
+
+    # use global.lock to control threads, not to update the same file at
+    # the same time
+
+    myenv <- new.env()
+
+    parent.env(myenv)
+
+    myenv$global.lock <- FALSE
+
+    while (TRUE)
+    {
+      file.name <- file.path(result.dir, "RData", "tree.RData")
+
+      if (isTRUE(myenv$global.lock))
+      {
+        Sys.sleep(runif(1, min = 0, max = 2))
+      } else
+      {
+        myenv$global.lock <- TRUE
+        load(file = file.name)
+        myenv$global.lock <- FALSE
       }
 
-    }else{
-      break
+      # check for terminate loop
+      row2 <- which(tree$status == 2)
+      row_1 <- which(tree$status == -1)
+      if ((length(row2) + length(row_1)) == length(tree$node))
+      {
+        break
+      }
+
+      file.name <- file.path(result.dir, "RData", "condition.RData")
+      load(file = file.name)
+
+      # take one node to process
+      which.row <- which(tree$status == 0)
+      if (length(which.row) > 0)
+      {
+        exe.node.list <- tree$node[which.row]
+        # serial loop
+        # for (idx in exe.node.list) {
+        # process.each.node(node =
+        # idx, work.dir = result.dir)
+
+        # parallel version
+        #foreach(thread_idx = seq(1, length(exe.node.list)),
+        #        .options.RNG = seed.num) %dorng%
+        for (thread_idx in seq(1, length(exe.node.list)))
+        {
+          process.each.node(
+            node = exe.node.list[thread_idx],
+            work.dir = result.dir,
+            no.rep = no.rep,
+            cutoff.confident = cutoff.confident
+          )
+        }
+
+      } else
+      {
+        break
+      }
+
     }
 
+    if (!silence.mode)
+      cat(paste0("In post process step\n"))
+    cluster.tab <- postprocess(result.dir = result.dir)
+
+    end.time <- Sys.time()
+    run.time <- as.numeric(end.time - start.time, units = "secs")
+    if (!silence.mode)
+      cat(paste0("Total runtime is ", run.time, " sec\n"))
+    file.name <- file.path(result.dir, "RData", "runtime.RData")
+    save(run.time, file = file.name, compress = "bzip2")
+    cluster.obj <-
+      list(output.dir = result.dir, cluster = cluster.tab)
+    file.name <- file.path(result.dir, "RData", "result.RData")
+    save(cluster.obj, file = file.name, compress = "bzip2")
+
+    # To stop all threads
+    stopCluster(threads)
+
+    return(cluster.obj)
   }
-
-  cat(paste0("In post process step\n"))
-  cluster.tab = postprocess(result.dir=result.dir)
-
-  end.time <- Sys.time()
-  run.time = as.numeric(end.time-start.time, units = "secs")
-  cat(paste0("Total runtime is ",run.time," sec\n"))
-  file.name = file.path(result.dir,"RData","runtime.RData")
-  save(run.time,file=file.name, compress = 'bzip2')
-  cluster.obj <- list("output.dir"=result.dir,"cluster"=cluster.tab)
-  file.name = file.path(result.dir,"RData","result.RData")
-  save(cluster.obj,file=file.name, compress = 'bzip2')
-  return(cluster.obj)
-}
-# Check the result files in your output directory
-# groups.txt contains the assigned groups of samples
-# tree_text.html is the text result shown as binary tree
-# tree_scatter_cluster.html is the scatter plots colored by clustering result
-# tree_scatter_label.html is the scatter plots colored by labels
-# tree_scree.html is the scree plots of eigen values
-
-
+# Check the result files in your output directory groups.txt contains
+# the assigned groups of samples tree_text.html is the text result
+# shown as binary tree tree_scatter_cluster.html is the scatter plots
+# colored by clustering result tree_scatter_label.html is the scatter
+# plots colored by labels tree_scree.html is the scree plots of eigen
+# values

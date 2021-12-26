@@ -145,7 +145,15 @@ process.</h1>
 process.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>clustering.mode</span><span class='op'>(</span><span class='va'>node</span>, <span class='va'>work.dir</span>, <span class='va'>method</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>clustering.mode</span><span class='op'>(</span>
+  <span class='va'>node</span>,
+  <span class='va'>work.dir</span>,
+  <span class='va'>method</span>,
+  silence.mode <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  seed <span class='op'>=</span> <span class='cn'>NULL</span>,
+  no.rep <span class='op'>=</span> <span class='fl'>5</span>,
+  cutoff.confident <span class='op'>=</span> <span class='fl'>0.5</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -163,6 +171,28 @@ analyzed.</p></td>
       <th>method</th>
       <td><p>A clustering method selected from the <code><a href='ipcaps2.html'>ipcaps2</a></code>
 function. See <code><a href='ipcaps2.html'>ipcaps2</a></code> for available methods.</p></td>
+    </tr>
+    <tr>
+      <th>silence.mode</th>
+      <td><p>To enable or disable silence mode. If silence mode is
+enabled, the fuction is processed without printing any message on the screen,
+and it is slightly faster. Default = TRUE.</p></td>
+    </tr>
+    <tr>
+      <th>seed</th>
+      <td><p>To specify a seed number for random generator. Default = NA,
+which means that a seed number is automatically chose.</p></td>
+    </tr>
+    <tr>
+      <th>no.rep</th>
+      <td><p>To specify a  number of time to replicate the internal clustering. Default = 5,</p></td>
+    </tr>
+    <tr>
+      <th>cutoff.confident</th>
+      <td><p>To specify a cutoff for confident values. The confident values
+are calculated based the clustering results of all replicates. The confident values
+represent the best of average values (agreed clusters) among the member of clusters.
+Default = 0.5.</p></td>
     </tr>
     </table>
 
@@ -185,7 +215,7 @@ belongs.</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Kridsadakorn Chaichoompu, Kristel Van Steen, Fentaw Abegaz, Sissades Tongsima, Philip James Shaw, Anavaj Sakuntabhai, Luisa Pereira.</p>
+  <p>Developed by Kridsadakorn Chaichoompu, Kristel Van Steen.</p>
 </div>
 
 <div class="pkgdown">
