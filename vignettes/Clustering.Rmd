@@ -27,7 +27,12 @@ LABEL.file <- system.file("extdata", "ipcaps_example_individuals.txt.gz", packag
 There cluster
 ```{r clustering1}
 
-res1 <- ipcaps2(bed = BED.file, label.file = LABEL.file, lab.col = 2, out = tempdir(), silence = TRUE, method = "mix")
+res1 <- ipcaps2(bed = BED.file, 
+                label.file = LABEL.file, 
+                lab.col = 2, 
+                out = tempdir(), 
+                silence = TRUE, 
+                method = "mix")
 
 table(res1$cluster$label, res1$cluster$group)
 
@@ -44,7 +49,8 @@ res5 <- ipcaps2(bed = BED.file, label.file = LABEL.file, lab.col = 2, out = temp
 res6 <- ipcaps2(bed = BED.file, label.file = LABEL.file, lab.col = 2, out = tempdir(), silence = TRUE, method = "hclust")
 res7 <- ipcaps2(bed = BED.file, label.file = LABEL.file, lab.col = 2, out = tempdir(), silence = TRUE, method = "rubikclust")
 res8 <- ipcaps2(bed = BED.file, label.file = LABEL.file, lab.col = 2, out = tempdir(), silence = TRUE, method = "clara")
-
+res9 <- ipcaps2(bed = BED.file, label.file = LABEL.file, lab.col = 2, out = tempdir(), silence = TRUE, method = "kmeans")
+res10 <- ipcaps2(bed = BED.file, label.file = LABEL.file, lab.col = 2, out = tempdir(), silence = TRUE, method = "dbscan")
 
 ```
 

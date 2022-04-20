@@ -1,5 +1,7 @@
 # IPCAPS2 2.1.0
 
+* add codes for ipcaps2 to supports kmeans and dbscan
+
 # IPCAPS 2.0.0
 
 * parallel version

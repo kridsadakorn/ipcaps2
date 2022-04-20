@@ -51,6 +51,11 @@ clustering.mode <-
     # load experiment condition
     file.name <-
       file.path(work.dir, "RData", paste0("node", node, ".RData"))
+
+    if (!file.exists(file.name)){
+      cat(paste0("Node ", node, ": Error, this file doesn't exist ", file.name, "\n"))
+      return(NULL)
+    }
     if (!silence.mode)
       cat(paste0("Node ", node, ": Loading ", file.name, "\n"))
     load(file = file.name)
@@ -59,11 +64,11 @@ clustering.mode <-
     for (t in seq(1, no.rep)) {
       if (method == "clara")
       {
-        cl <- pamk(PCs, krange = 2:2, usepam = FALSE)
+        cl <- pamk(PCs, krange = 1:5, usepam = FALSE)
         cluster <- cl$pamobject$clustering
       } else if (method == "pam")
       {
-        cl <- pamk(PCs, krange = 2:2, usepam = TRUE)
+        cl <- pamk(PCs, krange = 1:5, usepam = TRUE)
         cluster <- cl$pamobject$clustering
       } else if (method == "mixmod")
       {
@@ -105,6 +110,12 @@ clustering.mode <-
       } else if (method == "rubikclust")
       {
         cluster <- rubikclust(PCs[, seq(1, 3)], min.space = 0.15)
+      } else if (method == "kmeans")
+      {
+        cluster <- kmeans(PCs[, seq(1, 3)], 2)$cluster
+      } else if (method == "dbscan")
+      {
+        cluster <- fpc::dbscan(PCs[, seq(1, 3)], 0.2)$cluster
       } else
       {
         # default Mixed clustering methods
@@ -132,6 +143,7 @@ clustering.mode <-
 
     n = dim(all_cluster)[2]
     m = dim(all_cluster)[1]
+
     con_mat = matrix(rep(0, m * m), nrow = m, ncol = m)
     for (i in seq(1, n)) {
       groups = unique(all_cluster[, i])
