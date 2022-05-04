@@ -62,8 +62,9 @@ cluster_out, cluster_out1, cluster_out2, etc.}
 \item{method}{The internal clustering method. It can be set to "mix"
 (rubikclust & mixmod), "mixmod" (Lebret et al., 2015), "clara" (R: Clustering
 Large Applications), "pam" (R: Partitioning Around Medoids (PAM) Object),
-"meanshift" (Wang, 2016), "apcluster" (Bodenhofer et al., 2016), and "hclust"
-(R: Hierarchical Clustering). Default = "mix".}
+"meanshift" (Wang, 2016), "apcluster" (Bodenhofer et al., 2016), "hclust"
+(R: Hierarchical Clustering), kmeans (Hartigan et al., 1979), and dbscan
+(Ester et al. 1996). Default = "mix".}
 
 \item{missing}{Symbol used for missing genotypes. Default = NA.}
 
