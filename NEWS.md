@@ -1,3 +1,9 @@
+# IPCAPS2 2.2.1
+
+# IPCAPS2 2.2.0
+
+* add new function: plot3views.ipcaps
+
 # IPCAPS2 2.1.0
 
 * add codes for ipcaps2 to supports kmeans and dbscan

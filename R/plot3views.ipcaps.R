@@ -41,6 +41,8 @@ plot3views.ipcaps <- function(ipcaps_output)
         return(NULL)
     }
 
+    # PCs is stored in node1.RData
+    PCs = NULL
     load(file.path(ipcaps_output$output.dir,'RData','node1.RData'))
     KRIS::plot3views(X = PCs,
                      labels = ipcaps_output$cluster[order(ipcaps_output$cluster$row.number),]$group)
