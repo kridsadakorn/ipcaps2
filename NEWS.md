@@ -1,4 +1,8 @@
+# IPCAPS2 2.2.2
+
 # IPCAPS2 2.2.1
+
+* Fixed a note in CRAN check: PCs is not defined in plot3views.ipcaps
 
 # IPCAPS2 2.2.0
 
