@@ -3,6 +3,7 @@
 export(export.groups)
 export(get.node.info)
 export(ipcaps2)
+export(plot3views.ipcaps)
 export(save.eigenplots.html)
 export(save.html)
 export(save.plots)

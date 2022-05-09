@@ -18,10 +18,19 @@ Here set up
 
 ```{r setup}
 library(IPCAPS2)
+library(ggplot2)
+library(KRIS)
 
 BED.file <- system.file("extdata", "ipcaps_example.bed", package = "IPCAPS2")
+BIM.file <- system.file("extdata", "ipcaps_example.bim", package = "IPCAPS2")
+FAM.file <- system.file("extdata", "ipcaps_example.fam", package = "IPCAPS2")
 LABEL.file <- system.file("extdata", "ipcaps_example_individuals.txt.gz", package = "IPCAPS2")
 
+simsnp <- read.bed(BED.file, BIM.file, FAM.file)
+PCs <- cal.pc.linear(simsnp$snp, data.type = "snp", no.pc = 3)
+to_plot = as.data.frame(PCs$PC[,1:2])
+colnames(to_plot) <- c("PC1", "PC2")
+#ggplot(to_plot, aes(x = PC1, y = PC2, shape=cyl)))
 ```
 
 There cluster
@@ -36,21 +45,111 @@ res1 <- ipcaps2(bed = BED.file,
 
 table(res1$cluster$label, res1$cluster$group)
 
+plot3views.ipcaps(res1)
 ```
 
 Here all methods
 ```{r allmethods}
 
+#res1 <- ipcaps2(bed = BED.file, label.file = LABEL.file, lab.col = 2, out = tempdir(), silence = TRUE, method = "mix")
+res2 <- ipcaps2(bed = BED.file, 
+                label.file = LABEL.file, 
+                lab.col = 2, 
+                out = tempdir(), 
+                silence = TRUE, 
+                method = "pam")
 
-res2 <- ipcaps2(bed = BED.file, label.file = LABEL.file, lab.col = 2, out = tempdir(), silence = TRUE, method = "pam")
-res3 <- ipcaps2(bed = BED.file, label.file = LABEL.file, lab.col = 2, out = tempdir(), silence = TRUE, method = "mixmod")
-res4 <- ipcaps2(bed = BED.file, label.file = LABEL.file, lab.col = 2, out = tempdir(), silence = TRUE, method = "meanshift")
-res5 <- ipcaps2(bed = BED.file, label.file = LABEL.file, lab.col = 2, out = tempdir(), silence = TRUE, method = "apcluster")
-res6 <- ipcaps2(bed = BED.file, label.file = LABEL.file, lab.col = 2, out = tempdir(), silence = TRUE, method = "hclust")
-res7 <- ipcaps2(bed = BED.file, label.file = LABEL.file, lab.col = 2, out = tempdir(), silence = TRUE, method = "rubikclust")
-res8 <- ipcaps2(bed = BED.file, label.file = LABEL.file, lab.col = 2, out = tempdir(), silence = TRUE, method = "clara")
-res9 <- ipcaps2(bed = BED.file, label.file = LABEL.file, lab.col = 2, out = tempdir(), silence = TRUE, method = "kmeans")
-res10 <- ipcaps2(bed = BED.file, label.file = LABEL.file, lab.col = 2, out = tempdir(), silence = TRUE, method = "dbscan")
+table(res2$cluster$label, res2$cluster$group)
+
+plot3views.ipcaps(res2)
+
+res3 <- ipcaps2(bed = BED.file, 
+                label.file = LABEL.file, 
+                lab.col = 2, 
+                out = tempdir(), 
+                silence = TRUE, 
+                method = "mixmod")
+
+table(res3$cluster$label, res3$cluster$group)
+
+plot3views.ipcaps(res3)
+
+res4 <- ipcaps2(bed = BED.file, 
+                label.file = LABEL.file, 
+                lab.col = 2, 
+                out = tempdir(), 
+                silence = TRUE, 
+                method = "meanshift")
+
+table(res4$cluster$label, res4$cluster$group)
+
+plot3views.ipcaps(res4)
+
+res5 <- ipcaps2(bed = BED.file, 
+                label.file = LABEL.file, 
+                lab.col = 2, 
+                out = tempdir(), 
+                silence = TRUE, 
+                method = "apcluster")
+
+table(res5$cluster$label, res5$cluster$group)
+
+plot3views.ipcaps(res5)
+
+res6 <- ipcaps2(bed = BED.file, 
+                label.file = LABEL.file, 
+                lab.col = 2, 
+                out = tempdir(), 
+                silence = TRUE, 
+                method = "hclust")
+
+table(res6$cluster$label, res6$cluster$group)
+
+plot3views.ipcaps(res6)
+
+res7 <- ipcaps2(bed = BED.file, 
+                label.file = LABEL.file, 
+                lab.col = 2, 
+                out = tempdir(), 
+                silence = TRUE, 
+                method = "rubikclust")
+
+table(res7$cluster$label, res7$cluster$group)
+
+plot3views.ipcaps(res7)
+
+res8 <- ipcaps2(bed = BED.file, 
+                label.file = LABEL.file, 
+                lab.col = 2, 
+                out = tempdir(), 
+                silence = TRUE, 
+                method = "clara")
+
+table(res8$cluster$label, res8$cluster$group)
+
+plot3views.ipcaps(res8)
+
+res9 <- ipcaps2(bed = BED.file, 
+                label.file = LABEL.file, 
+                lab.col = 2, 
+                out = tempdir(), 
+                silence = TRUE, 
+                method = "kmeans")
+
+table(res9$cluster$label, res9$cluster$group)
+
+plot3views.ipcaps(res9)
+
+res10 <- ipcaps2(bed = BED.file, 
+                 label.file = LABEL.file, 
+                 lab.col = 2, 
+                 out = tempdir(), 
+                 silence = TRUE, 
+                 method = "dbscan")
+
+table(res10$cluster$label, res10$cluster$group)
+
+plot3views.ipcaps(res10)
 
 ```
 

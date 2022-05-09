@@ -58,5 +58,6 @@ Collate:
     'postprocess.R'
     'preprocess.R'
     'ipcaps.R'
+    'plot3views.ipcaps.R'
     'top.discriminator.R'
 VignetteBuilder: knitr
