@@ -18,7 +18,6 @@ Here set up
 
 ```{r setup}
 library(IPCAPS2)
-library(ggplot2)
 library(KRIS)
 
 BED.file <- system.file("extdata", "ipcaps_example.bed", package = "IPCAPS2")
@@ -30,7 +29,6 @@ simsnp <- read.bed(BED.file, BIM.file, FAM.file)
 PCs <- cal.pc.linear(simsnp$snp, data.type = "snp", no.pc = 3)
 to_plot = as.data.frame(PCs$PC[,1:2])
 colnames(to_plot) <- c("PC1", "PC2")
-#ggplot(to_plot, aes(x = PC1, y = PC2, shape=cyl)))
 ```
 
 There cluster

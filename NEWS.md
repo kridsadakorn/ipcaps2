@@ -1,8 +1,10 @@
 # IPCAPS2 2.2.2
 
+* Fixed according to the notes from CRAN check: Lines are too long in the examples
+
 # IPCAPS2 2.2.1
 
-* Fixed a note in CRAN check: PCs is not defined in plot3views.ipcaps
+* Fixed according to the note in CRAN check: PCs is not defined in plot3views.ipcaps
 
 # IPCAPS2 2.2.0
 
