@@ -1,3 +1,7 @@
+# IPCAPS2 2.3.0
+
+* add new function: heatmap.ipcaps()
+
 # IPCAPS2 2.2.2
 
 * Fixed according to the notes from CRAN check: Lines are too long in the examples
