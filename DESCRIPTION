@@ -47,6 +47,7 @@ Collate:
     'data.R'
     'export.groups.R'
     'get.node.info.R'
+    'heatmap.ipcaps.R'
     'ipcaps-package.R'
     'process.each.node.R'
     'output.template.R'
